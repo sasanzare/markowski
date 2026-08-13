@@ -815,6 +815,126 @@ final class RichTextCanvasTests: XCTestCase {
         }
     }
 
+    // MARK: - Following a citation to its place in the document
+
+    /// The assistant quotes the *source*, so a citation arrives carrying
+    /// Markdown. Neither the canvas nor the preview contains that syntax — a
+    /// task marker is a checkbox, a link is its label — so a quote that keeps
+    /// it finds nothing and the citation appears dead when clicked.
+    func testQuoteStrippingRemovesSyntaxThatIsNeverOnScreen() {
+        let cases: [(String, String)] = [
+            ("- [x] Mermaid diagrams rendered locally", "Mermaid diagrams rendered locally"),
+            ("- [ ] Windows edition", "Windows edition"),
+            ("## Why Markowski", "Why Markowski"),
+            ("- Regular bullet item", "Regular bullet item"),
+            ("1. First numbered step", "First numbered step"),
+            ("> A quoted aside", "A quoted aside"),
+            ("Some **bold** prose", "Some bold prose"),
+            ("A [link](https://example.com) inside", "A link inside"),
+            ("An ![image](shot.png) here", "An image here")
+        ]
+        for (markdown, expected) in cases {
+            XCTAssertEqual(
+                DocumentIndex.plainText(fromMarkdown: markdown), expected,
+                "Stripping \(markdown.debugDescription)"
+            )
+        }
+    }
+
+    func testQuoteCandidatesOfferTheStrippedForm() {
+        let candidates = DocumentIndex.quoteCandidates(for: "- [x] Mermaid diagrams rendered locally")
+        XCTAssertTrue(
+            candidates.contains("Mermaid diagrams rendered locally"),
+            "The on-screen form has to be among the things searched for. Got: \(candidates)"
+        )
+    }
+
+    /// End to end through the real canvas: a citation quoting a task item has
+    /// to actually land on that line.
+    @MainActor
+    func testCitationQuotingATaskItemFindsItInTheCanvas() throws {
+        let (_, textView, _) = makeCanvas("""
+        # Launch
+
+        ## Everything stays in flow
+
+        - [x] Mermaid diagrams rendered locally
+        - [ ] Windows edition
+
+        Some **bold** prose with a [link](https://example.com) inside it.
+        """)
+
+        let navigator = DocumentNavigator()
+        navigator.attachCanvas(textView)
+        textView.setSelectedRange(NSRange(location: 0, length: 0))
+
+        navigator.navigateToLocation(
+            DocumentLocation(heading: nil, quote: "- [x] Mermaid diagrams rendered locally",
+                             startLine: nil, endLine: nil, blockId: nil),
+            text: textView.string,
+            viewMode: .editor,
+            reduceMotion: true
+        )
+
+        let selected = (textView.string as NSString).substring(with: textView.selectedRange())
+        XCTAssertTrue(
+            selected.contains("Mermaid diagrams rendered locally"),
+            "The caret should be on the cited line; it selected \(selected.debugDescription)"
+        )
+    }
+
+    /// A quote whose sentence contains inline formatting has to match too —
+    /// the canvas holds the words without the asterisks or the link target.
+    @MainActor
+    func testCitationWithInlineFormattingFindsItsSentence() throws {
+        let (_, textView, _) = makeCanvas("""
+        # Launch
+
+        Some **bold** prose with a [link](https://example.com) inside it.
+        """)
+
+        let navigator = DocumentNavigator()
+        navigator.attachCanvas(textView)
+        textView.setSelectedRange(NSRange(location: 0, length: 0))
+
+        navigator.navigateToLocation(
+            DocumentLocation(heading: nil,
+                             quote: "Some **bold** prose with a [link](https://example.com) inside it.",
+                             startLine: nil, endLine: nil, blockId: nil),
+            text: textView.string,
+            viewMode: .editor,
+            reduceMotion: true
+        )
+
+        let selected = (textView.string as NSString).substring(with: textView.selectedRange())
+        XCTAssertTrue(
+            selected.contains("bold prose"),
+            "Got: \(selected.debugDescription)"
+        )
+    }
+
+    @MainActor
+    func testCitationThatMatchesNothingLeavesTheCaretAlone() throws {
+        let (_, textView, _) = makeCanvas("# Launch\n\nOnly this paragraph exists.")
+
+        let navigator = DocumentNavigator()
+        navigator.attachCanvas(textView)
+        textView.setSelectedRange(NSRange(location: 0, length: 0))
+
+        navigator.navigateToLocation(
+            DocumentLocation(heading: nil, quote: "a passage that is nowhere in this document",
+                             startLine: nil, endLine: nil, blockId: nil),
+            text: textView.string,
+            viewMode: .editor,
+            reduceMotion: true
+        )
+
+        XCTAssertEqual(
+            textView.selectedRange().length, 0,
+            "Nothing matched, so nothing should have been selected"
+        )
+    }
+
     // MARK: - Images
 
     func testStandaloneImageIsRecognisedAndRoundTrips() {

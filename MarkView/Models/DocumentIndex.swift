@@ -131,29 +131,65 @@ final class DocumentIndex {
             .lowercased()
     }
 
+    /// Strips the Markdown a quote still carries, leaving the words that are
+    /// actually on screen.
+    ///
+    /// The assistant quotes the *source*, so it hands back things like
+    /// `- [x] Ship the beta`. Neither the editor canvas nor the rendered
+    /// preview contains `- [x] ` — the marker became a bullet and a checkbox —
+    /// so searching for the quote verbatim finds nothing and the citation
+    /// appears to do nothing when clicked.
+    static func plainText(fromMarkdown markdown: String) -> String {
+        var text = markdown.trimmingCharacters(in: .whitespaces)
+        for pattern in [
+            "^\\s*>+\\s*",           // block quote
+            "^\\s*#{1,6}\\s+",       // heading
+            "^\\s*[-*+]\\s+",        // bullet
+            "^\\s*\\d+[.)]\\s+",     // ordered item
+            "^\\s*\\[[ xX]\\]\\s*"   // task checkbox
+        ] {
+            text = text.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
+        }
+        return text
+            // Links and images render as their label alone.
+            .replacingOccurrences(
+                of: "!?\\[([^\\]]*)\\]\\([^)]*\\)",
+                with: "$1",
+                options: .regularExpression
+            )
+            .replacingOccurrences(of: "[*_`~]", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces)
+    }
+
     static func quoteCandidates(for quote: String) -> [String] {
         let trimmed = quote.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
 
         var candidates = [trimmed]
 
-        if let firstLine = trimmed.components(separatedBy: .newlines)
+        let firstLine = trimmed.components(separatedBy: .newlines)
             .first(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty })?
-            .trimmingCharacters(in: .whitespaces),
-           firstLine != trimmed {
+            .trimmingCharacters(in: .whitespaces) ?? trimmed
+        if firstLine != trimmed {
             candidates.append(firstLine)
         }
 
-        let plain = (candidates.last ?? trimmed)
-            .replacingOccurrences(of: "[*_`~]", with: "", options: .regularExpression)
-            .trimmingCharacters(in: .whitespaces)
-        if !plain.isEmpty, !candidates.contains(plain) {
-            candidates.append(plain)
+        // The stripped forms are what the canvas and the preview actually hold.
+        for source in [firstLine, trimmed] {
+            let plain = plainText(fromMarkdown: source)
+            if !plain.isEmpty, !candidates.contains(plain) {
+                candidates.append(plain)
+            }
         }
 
         // A long quote only has to agree with the source on its opening.
-        if plain.count > 40 {
-            candidates.append(String(plain.prefix(40)).trimmingCharacters(in: .whitespaces))
+        if let longest = candidates.max(by: { $0.count < $1.count }), longest.count > 40 {
+            let opening = String(plainText(fromMarkdown: longest).prefix(40))
+                .trimmingCharacters(in: .whitespaces)
+            if !opening.isEmpty, !candidates.contains(opening) {
+                candidates.append(opening)
+            }
         }
 
         return candidates.filter { $0.count >= 3 }

@@ -125,22 +125,84 @@ final class DocumentNavigator: ObservableObject {
     }
 
     /// Selects the first candidate that is actually present in the canvas.
-    private func revealInCanvas(_ candidates: [String]) {
-        guard let textView = canvasTextView else { return }
+    ///
+    /// Returns whether anything was found, so a citation that leads nowhere can
+    /// be reported rather than silently doing nothing.
+    @discardableResult
+    private func revealInCanvas(_ candidates: [String]) -> Bool {
+        guard let textView = canvasTextView else { return false }
         let haystack = textView.string as NSString
 
         for candidate in candidates {
             let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
             guard trimmed.count >= 3 else { continue }
 
-            let range = haystack.range(of: trimmed, options: [.caseInsensitive])
-            guard range.location != NSNotFound else { continue }
+            if let range = locate(trimmed, in: haystack) {
+                textView.setSelectedRange(range)
+                textView.scrollRangeToVisible(range)
+                textView.showFindIndicator(for: range)
+                return true
+            }
+        }
+
+        // Nothing matched whole; try the opening words. A model routinely
+        // reflows or trims the tail of what it quotes, rarely the start.
+        for candidate in candidates {
+            let words = candidate.split(separator: " ")
+            guard words.count > 3 else { continue }
+            let opening = words.prefix(min(6, words.count - 1)).joined(separator: " ")
+            guard opening.count >= 6, let range = locate(opening, in: haystack) else { continue }
 
             textView.setSelectedRange(range)
             textView.scrollRangeToVisible(range)
             textView.showFindIndicator(for: range)
-            return
+            return true
         }
+        return false
+    }
+
+    /// Finds `needle` in `haystack`, tolerating the whitespace differences
+    /// between a quoted source line and the laid-out document.
+    private func locate(_ needle: String, in haystack: NSString) -> NSRange? {
+        let direct = haystack.range(of: needle, options: [.caseInsensitive])
+        if direct.location != NSNotFound { return direct }
+
+        // Collapse runs of whitespace on both sides, keeping a map back to the
+        // original offsets so the caret still lands in the right place.
+        var flattened = ""
+        var offsets: [Int] = []
+        var previousWasSpace = false
+
+        for index in 0..<haystack.length {
+            let character = Character(UnicodeScalar(haystack.character(at: index)) ?? " ")
+            if character.isWhitespace || character.isNewline {
+                if previousWasSpace || flattened.isEmpty { continue }
+                flattened.append(" ")
+                offsets.append(index)
+                previousWasSpace = true
+            } else {
+                flattened.append(character)
+                offsets.append(index)
+                previousWasSpace = false
+            }
+        }
+
+        let flatNeedle = needle
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces)
+        guard flatNeedle.count >= 3,
+              let found = flattened.range(of: flatNeedle, options: [.caseInsensitive]) else {
+            return nil
+        }
+
+        let start = flattened.distance(from: flattened.startIndex, to: found.lowerBound)
+        let end = flattened.distance(from: flattened.startIndex, to: found.upperBound)
+        guard start < offsets.count, end > 0, end <= offsets.count else { return nil }
+
+        let location = offsets[start]
+        let upper = end < offsets.count ? offsets[end] : haystack.length
+        guard upper > location else { return nil }
+        return NSRange(location: location, length: upper - location)
     }
 
     func scrollSourceToLine(_ lineNumber: Int) {

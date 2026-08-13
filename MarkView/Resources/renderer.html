@@ -1265,35 +1265,83 @@
     // Markdown syntax, it wraps across elements, or it was normalised. Fall
     // back to progressively looser candidates instead of silently doing
     // nothing when the exact string isn't found.
+    /// Strips the Markdown a quote still carries, leaving the words that
+    /// actually appear on screen.
+    function plainFromMarkdown(raw) {
+      return (raw || '')
+        .replace(/^\s*>+\s*/, '')            // block quote
+        .replace(/^\s*#{1,6}\s+/, '')        // heading
+        .replace(/^\s*[-*+]\s+/, '')         // bullet
+        .replace(/^\s*\d+[.)]\s+/, '')       // ordered item
+        // A task marker renders as a checkbox, so `[x] ` is never in the text.
+        // Missing this is why "- [x] …" quotes never found their section.
+        .replace(/^\s*\[[ xX]\]\s*/, '')
+        .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')  // links and images
+        .replace(/[*_`~]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function normalizeForMatch(text) {
+      return (text || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    function revealBlock(element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('markview-highlight');
+      setTimeout(() => element.classList.remove('markview-highlight'), 2200);
+    }
+
+    /// Scrolls to the passage a citation points at.
+    ///
+    /// Matching happens per *block*, against its rendered `textContent`, not
+    /// per text node. A sentence like "Some **bold** prose with a [link](…)"
+    /// renders as several text nodes split by `<strong>` and `<a>`, so a
+    /// node-by-node search could never match a quote that spanned them — which
+    /// is most quotes worth citing.
     function findText(query) {
       const raw = (query || '').trim();
       if (!raw) return false;
 
-      const stripped = raw
-        .replace(/^[#>\s]*[-*+]?\s*/, '')
-        .replace(/[*_`~]/g, '')
-        .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-        .trim();
-      const firstLine = stripped.split('\n')[0].trim();
+      const content = document.getElementById('content');
+      if (!content) return false;
 
-      const candidates = [raw, stripped, firstLine];
-      if (firstLine.length > 40) {
-        candidates.push(firstLine.slice(0, 40).trim());
-      }
-      const words = firstLine.split(/\s+/).filter(Boolean);
-      if (words.length > 4) {
-        candidates.push(words.slice(0, 4).join(' '));
+      const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+      const firstLine = lines[0] || raw;
+
+      const targets = [];
+      const push = (value) => {
+        const normalized = normalizeForMatch(value);
+        if (normalized.length >= 3 && !targets.includes(normalized)) targets.push(normalized);
+      };
+      push(plainFromMarkdown(firstLine));
+      push(plainFromMarkdown(raw));
+      push(firstLine);
+
+      const blocks = Array.from(content.querySelectorAll(
+        'p, li, h1, h2, h3, h4, h5, h6, td, th, blockquote, pre, .mermaid-wrapper'
+      ));
+      if (!blocks.length) return false;
+
+      const search = (needle) =>
+        blocks.find((block) => normalizeForMatch(block.textContent).includes(needle));
+
+      for (const target of targets) {
+        const hit = search(target);
+        if (hit) { revealBlock(hit); return true; }
       }
 
-      for (const candidate of candidates) {
-        if (!candidate || candidate.length < 3) continue;
-        if (highlightSearchMatches(candidate, 0) > 0) {
-          setTimeout(() => clearSearchHighlights(), 2200);
-          return true;
-        }
+      // Last resort: the opening words. A model often trims or reflows the
+      // tail of what it quotes, but rarely the beginning.
+      for (const target of targets) {
+        const words = target.split(' ');
+        if (words.length <= 3) continue;
+        const prefix = words.slice(0, Math.min(6, words.length - 1)).join(' ');
+        if (prefix.length < 6) continue;
+        const hit = search(prefix);
+        if (hit) { revealBlock(hit); return true; }
       }
 
-      clearSearchHighlights();
       return false;
     }
 
