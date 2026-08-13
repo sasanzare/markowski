@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="renderer.css">
+  <script src="marked.min.js"></script>
+  <script src="mermaid.min.js"></script>
+  <style>
+    .markview-highlight {
+      background-color: rgba(211, 126, 52, 0.22) !important;
+      transition: background-color 0.8s ease-out;
+      border-radius: 4px;
+      box-shadow: 0 0 0 4px rgba(211, 126, 52, 0.08);
+    }
+    mark.markview-mark {
+      background-color: rgba(245, 216, 96, 0.55);
+      color: inherit;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    @media (prefers-color-scheme: dark) {
+      mark.markview-mark {
+        background-color: rgba(214, 178, 48, 0.42);
+      }
+    }
+    .markview-search-match {
+      background-color: rgba(245, 194, 70, 0.26);
+      border-radius: 2px;
+    }
+    .markview-search-current {
+      background-color: rgba(211, 126, 52, 0.42) !important;
+      border-radius: 2px;
+    }
+
+    /* Editable blocks. The hover outline is pushed away from the text with
+       padding that is cancelled by an equal negative margin, so gaining an
+       outline never shifts the layout. */
+    .mv-block {
+      position: relative;
+      padding: 8px 12px;
+      margin: 0 -12px;
+      border-radius: 8px;
+      transition: box-shadow 0.14s ease-out, background-color 0.14s ease-out;
+    }
+    .mv-block:hover {
+      box-shadow: 0 0 0 1px rgba(120, 140, 180, 0.20);
+    }
+    .mv-block.editing {
+      box-shadow: 0 0 0 2px rgba(75, 130, 220, 0.55);
+      background: rgba(120, 150, 200, 0.06);
+    }
+    .mv-block-editor {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font: 13px/1.55 ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+      resize: none;
+      overflow: hidden;
+      outline: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    @media (prefers-color-scheme: dark) {
+      .mv-block:hover { box-shadow: 0 0 0 1px rgba(150, 170, 210, 0.20); }
+      .mv-block.editing { background: rgba(130, 160, 210, 0.10); }
+    }
+
+    /* Per-block actions: copy (with a choice of form) and delete. Hidden until
+       the block is hovered so the page reads as a document. */
+    .mv-block-actions {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 3px;
+      border-radius: 9px;
+      background: rgba(250, 250, 252, 0.94);
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.13);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      backdrop-filter: saturate(180%) blur(14px);
+      opacity: 0;
+      transform: translateY(-2px);
+      pointer-events: none;
+      transition: opacity 0.13s ease-out, transform 0.13s ease-out;
+      user-select: none;
+      z-index: 5;
+    }
+    .mv-block:hover > .mv-block-actions,
+    .mv-block-actions.menu-open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .mv-block.editing > .mv-block-actions { display: none; }
+    .mv-block-actions button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 24px;
+      padding: 0 7px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: #3a3a3c;
+      cursor: default;
+      transition: background-color 0.11s ease-out, color 0.11s ease-out;
+    }
+    .mv-block-actions button:hover { background: rgba(0, 0, 0, 0.085); }
+    .mv-block-actions button.danger:hover { background: rgba(215, 58, 43, 0.14); color: #c0392b; }
+    .mv-block-actions button.copied { color: #1f8b4c; background: rgba(31, 139, 76, 0.14); }
+    .mv-block-actions svg { width: 13px; height: 13px; display: block; }
+    .mv-block-actions .caret { width: 7px; height: 7px; opacity: 0.55; }
+    .mv-block-actions .divider {
+      width: 1px;
+      height: 15px;
+      margin: 0 2px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    /* The copy menu: plain text or Markdown. */
+    .mv-copy-menu {
+      position: fixed;
+      z-index: 10001;
+      min-width: 186px;
+      padding: 5px;
+      border-radius: 11px;
+      background: rgba(250, 250, 252, 0.96);
+      border: 0.5px solid rgba(0, 0, 0, 0.14);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20);
+      -webkit-backdrop-filter: saturate(180%) blur(22px);
+      backdrop-filter: saturate(180%) blur(22px);
+      opacity: 0;
+      transform: translateY(-4px) scale(0.97);
+      transform-origin: top right;
+      transition: opacity 0.12s ease-out, transform 0.12s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+      user-select: none;
+    }
+    .mv-copy-menu.visible { opacity: 1; transform: translateY(0) scale(1); }
+    .mv-copy-menu button {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      width: 100%;
+      padding: 6px 9px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: #1d1d1f;
+      font: 500 12px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      text-align: left;
+      cursor: default;
+    }
+    .mv-copy-menu button:hover { background: rgba(0, 0, 0, 0.075); }
+    .mv-copy-menu .hint {
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.6;
+    }
+
+    /* Insertion points between blocks. */
+    .mv-gap {
+      position: relative;
+      height: 12px;
+      margin: -4px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.14s ease-out, height 0.14s ease-out;
+      user-select: none;
+    }
+    .mv-gap:hover, .mv-gap.menu-open { opacity: 1; height: 30px; }
+    .mv-gap-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      border-radius: 1px;
+      background: rgba(90, 130, 200, 0.30);
+    }
+    .mv-gap-add {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 24px;
+      padding: 0 11px;
+      border: 0.5px solid rgba(0, 0, 0, 0.14);
+      border-radius: 12px;
+      background: rgba(250, 250, 252, 0.99);
+      color: #40506b;
+      font: 600 11px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      box-shadow: 0 2px 9px rgba(0, 0, 0, 0.16);
+      cursor: default;
+      white-space: nowrap;
+      transition: transform 0.13s ease-out, background-color 0.13s ease-out, box-shadow 0.13s ease-out;
+    }
+    .mv-gap-add:hover {
+      transform: scale(1.05);
+      background: #ffffff;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+    }
+    /* An SVG plus is centred by geometry; a text "+" glyph is not. */
+    .mv-gap-add svg { width: 10px; height: 10px; display: block; }
+
+    .mv-insert-menu {
+      position: fixed;
+      z-index: 10000;
+      min-width: 176px;
+      padding: 5px;
+      border-radius: 11px;
+      background: rgba(250, 250, 252, 0.94);
+      border: 0.5px solid rgba(0, 0, 0, 0.14);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.20), 0 1px 3px rgba(0, 0, 0, 0.10);
+      -webkit-backdrop-filter: saturate(180%) blur(22px);
+      backdrop-filter: saturate(180%) blur(22px);
+      opacity: 0;
+      transform: translateY(-4px) scale(0.97);
+      transform-origin: top left;
+      transition: opacity 0.13s ease-out, transform 0.13s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+      user-select: none;
+    }
+    .mv-insert-menu.visible { opacity: 1; transform: translateY(0) scale(1); }
+    .mv-insert-menu button {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      padding: 6px 9px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: #1d1d1f;
+      font: 500 12px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      text-align: left;
+      cursor: default;
+    }
+    .mv-insert-menu button:hover { background: rgba(0, 0, 0, 0.075); }
+    .mv-insert-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.055);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #55606f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .mv-block-actions {
+        background: rgba(48, 48, 51, 0.94);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.42);
+      }
+      .mv-block-actions button { color: #e6e6ea; }
+      .mv-block-actions button:hover { background: rgba(255, 255, 255, 0.12); }
+      .mv-block-actions button.danger:hover { background: rgba(255, 105, 97, 0.20); color: #ff8a80; }
+      .mv-block-actions button.copied { color: #6ee7a0; background: rgba(110, 231, 160, 0.16); }
+      .mv-block-actions .divider { background: rgba(255, 255, 255, 0.16); }
+
+      .mv-copy-menu {
+        background: rgba(44, 44, 46, 0.96);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      }
+      .mv-copy-menu button { color: #f2f2f7; }
+      .mv-copy-menu button:hover { background: rgba(255, 255, 255, 0.11); }
+
+      .mv-gap-line { background: rgba(140, 175, 240, 0.32); }
+      .mv-gap-add {
+        background: rgba(58, 58, 62, 0.99);
+        border-color: rgba(255, 255, 255, 0.18);
+        color: #dfe6f2;
+      }
+      .mv-gap-add:hover { background: rgba(74, 74, 80, 1); }
+
+      .mv-insert-menu {
+        background: rgba(44, 44, 46, 0.94);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5);
+      }
+      .mv-insert-menu button { color: #f2f2f7; }
+      .mv-insert-menu button:hover { background: rgba(255, 255, 255, 0.11); }
+      .mv-insert-icon { background: rgba(255, 255, 255, 0.10); color: #c9d2e0; }
+    }
+
+    #markview-selection-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      border-radius: 10px;
+      background: rgba(250, 250, 252, 0.86);
+      border: 0.5px solid rgba(0, 0, 0, 0.14);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16), 0 1px 3px rgba(0, 0, 0, 0.10);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
+      font: 500 12px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      opacity: 0;
+      transform: translateY(3px);
+      pointer-events: none;
+      transition: opacity 0.13s ease-out, transform 0.13s ease-out;
+    }
+    #markview-selection-bar.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    #markview-selection-bar button {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: #1d1d1f;
+      font: inherit;
+      cursor: default;
+      white-space: nowrap;
+    }
+    #markview-selection-bar button:hover {
+      background: rgba(0, 0, 0, 0.075);
+    }
+    #markview-selection-bar button.primary {
+      color: #a94b0d;
+      font-weight: 600;
+    }
+    #markview-selection-bar .separator {
+      width: 1px;
+      align-self: stretch;
+      margin: 3px 2px;
+      background: rgba(0, 0, 0, 0.11);
+    }
+    @media (prefers-color-scheme: dark) {
+      #markview-selection-bar {
+        background: rgba(44, 44, 46, 0.88);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.44);
+      }
+      #markview-selection-bar button { color: #f2f2f7; }
+      #markview-selection-bar button:hover { background: rgba(255, 255, 255, 0.11); }
+      #markview-selection-bar button.primary { color: #f0a45b; }
+      #markview-selection-bar .separator { background: rgba(255, 255, 255, 0.16); }
+    }
+  </style>
+</head>
+<body>
+  <div id="content"></div>
+
+  <div id="markview-selection-bar" role="toolbar" aria-label="Actions for the selected text">
+    <button type="button" class="primary" data-selection-action="ask">✦ Ask Markowski</button>
+    <div class="separator"></div>
+    <button type="button" data-selection-action="explain">Explain</button>
+    <button type="button" data-selection-action="improve">Improve</button>
+  </div>
+
+  <script>
+    if (window.marked) {
+      // ==text== renders as highlighted text, matching the editor canvas.
+      marked.use({
+        extensions: [{
+          name: 'mvHighlight',
+          level: 'inline',
+          start(src) { return src.indexOf('=='); },
+          tokenizer(src) {
+            const match = /^==(?!\s)((?:\\.|[^=\\]|=(?!=))+?)==/.exec(src);
+            if (!match) return undefined;
+            return {
+              type: 'mvHighlight',
+              raw: match[0],
+              tokens: this.lexer.inlineTokens(match[1])
+            };
+          },
+          renderer(token) {
+            return `<mark class="markview-mark">${this.parser.parseInline(token.tokens)}</mark>`;
+          }
+        }]
+      });
+      marked.use({
+        renderer: {
+          list(token) {
+            let body = '';
+            for (const item of token.items) {
+              let renderedItem = this.listitem(item);
+              if (token.ordered) {
+                const explicitMarker = (item.raw || '').match(/^\s*(\d{1,9})[.)]\s+/);
+                if (explicitMarker) {
+                  renderedItem = renderedItem.replace('<li>', `<li value="${explicitMarker[1]}">`);
+                }
+              }
+              body += renderedItem;
+            }
+            const tag = token.ordered ? 'ol' : 'ul';
+            const start = token.ordered && token.start !== 1 ? ` start="${token.start}"` : '';
+            return `<${tag}${start}>\n${body}</${tag}>\n`;
+          }
+        }
+      });
+      marked.setOptions({
+        gfm: true,
+        breaks: true,
+        headerIds: true,
+        mangle: false
+      });
+    }
+
+    let isDarkModeCurrent = false;
+
+    function initMermaid(isDarkMode) {
+      isDarkModeCurrent = isDarkMode;
+      if (window.mermaid) {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: isDarkMode ? 'dark' : 'default',
+          securityLevel: 'loose',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+          logLevel: 'error',
+          // Labels as real SVG <text>, not <foreignObject>.
+          //
+          // A foreignObject holds HTML, and HTML is laid out by the page's
+          // stylesheet — which does not travel with a serialised SVG. Exported
+          // diagrams therefore re-flowed their labels against whatever default
+          // font and size the rasteriser had, and came out looking nothing like
+          // the diagram on screen. SVG text carries its own geometry, so what
+          // is exported is what was rendered.
+          htmlLabels: false,
+          flowchart: { htmlLabels: false },
+          class: { htmlLabels: false }
+        });
+      }
+    }
+
+    // The exact source the DOM currently reflects. Block editing splices into
+    // this, so it must always match what Swift last sent.
+    let currentSource = '';
+
+    async function renderDocument(rawContent, fileExtension, isDarkMode) {
+      currentSource = rawContent || '';
+      const contentDiv = document.getElementById('content');
+      contentDiv.innerHTML = '';
+      searchMatchElements = [];
+      initMermaid(isDarkMode);
+
+      const ext = (fileExtension || '').toLowerCase().replace('.', '');
+      
+      if (ext === 'mmd') {
+        await renderPureMermaid(rawContent, contentDiv);
+      } else {
+        await renderMarkdown(rawContent, contentDiv);
+      }
+
+      assignBlockIds(contentDiv);
+
+      if (ext !== 'mmd') {
+        decorateBlocks(contentDiv);
+        openPendingBlockEditor(contentDiv);
+      }
+    }
+
+    /// After an insertion the new block should be ready to type into — that is
+    /// the whole point of choosing a block type.
+    function openPendingBlockEditor(container) {
+      if (pendingEditStart === null) return;
+      const target = pendingEditStart;
+      pendingEditStart = null;
+
+      const match = container.querySelector('.mv-block[data-mv-start="' + target + '"]');
+      if (match) {
+        beginBlockEdit(match);
+      }
+    }
+
+    function assignBlockIds(container) {
+      // Only real content blocks are numbered — the gap and action affordances
+      // are chrome, and counting them would shift every id.
+      const blocks = container.querySelectorAll(':scope > .mv-block');
+      for (let i = 0; i < blocks.length; i++) {
+        blocks[i].setAttribute('data-markview-block-id', 'block-' + (i + 1));
+      }
+    }
+
+    // Per-block chrome: copy in two forms, and an insertion point in every gap.
+    const BLOCK_TEMPLATES = [
+      { id: 'paragraph', label: 'Text', icon: '¶', text: '' },
+      { id: 'h1', label: 'Heading 1', icon: 'H₁', text: '# ' },
+      { id: 'h2', label: 'Heading 2', icon: 'H₂', text: '## ' },
+      { id: 'h3', label: 'Heading 3', icon: 'H₃', text: '### ' },
+      { id: 'bullet', label: 'Bulleted list', icon: '•', text: '- ' },
+      { id: 'numbered', label: 'Numbered list', icon: '1.', text: '1. ' },
+      { id: 'task', label: 'Task list', icon: '☑', text: '- [ ] ' },
+      { id: 'quote', label: 'Quote', icon: '❝', text: '> ' },
+      { id: 'code', label: 'Code block', icon: '</>', text: '```\n\n```' },
+      { id: 'table', label: 'Table', icon: '⊞', text: '| Column 1 | Column 2 |\n| --- | --- |\n|  |  |' },
+      { id: 'divider', label: 'Divider', icon: '—', text: '---' }
+    ];
+
+    /// Set just before an insertion is posted, so the new block can be opened
+    /// for editing the moment it comes back rendered.
+    let pendingEditStart = null;
+
+    const MV_ICONS = {
+      copy: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.8"/><path d="M10.5 3.5a1.8 1.8 0 0 0-1.8-1.8H3.9A2.4 2.4 0 0 0 1.5 4.1v4.8a1.8 1.8 0 0 0 1.8 1.8"/></svg>',
+      trash: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 4.2h10.4M6.4 4.2V2.9a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v1.3M4.2 4.2l.6 8.2a1.4 1.4 0 0 0 1.4 1.3h3.6a1.4 1.4 0 0 0 1.4-1.3l.6-8.2"/></svg>',
+      caret: '<svg class="caret" viewBox="0 0 10 10" fill="currentColor"><path d="M1.4 3.4h7.2L5 7.6z"/></svg>',
+      plus: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 1.6v8.8M1.6 6h8.8"/></svg>'
+    };
+
+    function decorateBlocks(container) {
+      const blocks = Array.from(container.querySelectorAll(':scope > .mv-block'));
+
+      blocks.forEach((block) => {
+        const start = parseInt(block.getAttribute('data-mv-start'), 10);
+        const length = parseInt(block.getAttribute('data-mv-length'), 10);
+
+        const actions = document.createElement('div');
+        actions.className = 'mv-block-actions';
+        actions.setAttribute('contenteditable', 'false');
+        actions.innerHTML =
+          '<button type="button" data-mv-action="copy" title="Copy this block — choose plain text or Markdown">' +
+            MV_ICONS.copy + MV_ICONS.caret +
+          '</button>' +
+          '<div class="divider"></div>' +
+          '<button type="button" class="danger" data-mv-action="delete" title="Delete this block">' +
+            MV_ICONS.trash +
+          '</button>';
+        block.appendChild(actions);
+
+        actions.addEventListener('mousedown', (event) => {
+          const button = event.target.closest('[data-mv-action]');
+          if (!button) return;
+          event.preventDefault();
+          event.stopPropagation();
+
+          const action = button.getAttribute('data-mv-action');
+          if (action === 'delete') {
+            postToHost({ action: 'deleteBlock', start: start, length: length });
+          } else {
+            openCopyMenu(button, block, start, length, actions);
+          }
+        });
+      });
+
+      // A gap before the first block, and after every one.
+      const positions = [0].concat(blocks.map((block) => {
+        const start = parseInt(block.getAttribute('data-mv-start'), 10);
+        const length = parseInt(block.getAttribute('data-mv-length'), 10);
+        return start + length;
+      }));
+
+      positions.forEach((offset, index) => {
+        const gap = createInsertGap(offset);
+        if (index === 0) {
+          container.insertBefore(gap, blocks[0] || null);
+        } else {
+          const previous = blocks[index - 1];
+          previous.parentNode.insertBefore(gap, previous.nextSibling);
+        }
+      });
+    }
+
+    /// Viewport size, guarded. A zero-sized viewport (a detached or
+    /// not-yet-laid-out web view) would otherwise make every clamp below
+    /// collapse and push menus off-screen.
+    function viewportSize() {
+      const width = window.innerWidth || document.documentElement.clientWidth || 0;
+      const height = window.innerHeight || document.documentElement.clientHeight || 0;
+      return {
+        width: width > 0 ? width : Number.POSITIVE_INFINITY,
+        height: height > 0 ? height : Number.POSITIVE_INFINITY
+      };
+    }
+
+    let copyMenu = null;
+    let copyMenuOwner = null;
+
+    function closeCopyMenu() {
+      if (!copyMenu) return;
+      copyMenu.remove();
+      copyMenu = null;
+      if (copyMenuOwner) {
+        copyMenuOwner.classList.remove('menu-open');
+        copyMenuOwner = null;
+      }
+    }
+
+    /// Copy offers the two forms the same block can take: what it reads as,
+    /// and what it *is*.
+    function openCopyMenu(button, block, start, length, actions) {
+      closeCopyMenu();
+      closeInsertMenu();
+
+      const menu = document.createElement('div');
+      menu.className = 'mv-copy-menu';
+      menu.setAttribute('contenteditable', 'false');
+      menu.innerHTML =
+        '<button type="button" data-mv-copy="text">Copy as text' +
+          '<span class="hint">plain, tidied</span></button>' +
+        '<button type="button" data-mv-copy="markdown">Copy as Markdown' +
+          '<span class="hint">keeps formatting</span></button>';
+
+      document.documentElement.appendChild(menu);
+      copyMenu = menu;
+      copyMenuOwner = actions;
+      actions.classList.add('menu-open');
+
+      const anchor = button.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
+      const viewport = viewportSize();
+      const margin = 8;
+      let top = anchor.bottom + 5;
+      if (top + menuRect.height > viewport.height - margin) {
+        top = Math.max(margin, anchor.top - menuRect.height - 5);
+      }
+      const left = Math.max(
+        margin,
+        Math.min(anchor.right - menuRect.width, viewport.width - menuRect.width - margin)
+      );
+      menu.style.top = top + 'px';
+      menu.style.left = left + 'px';
+      requestAnimationFrame(() => menu.classList.add('visible'));
+
+      menu.addEventListener('mousedown', (event) => {
+        const choice = event.target.closest('[data-mv-copy]');
+        if (!choice) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const mode = choice.getAttribute('data-mv-copy');
+        closeCopyMenu();
+        copyBlock(block, start, length, mode, button);
+      });
+    }
+
+    function createInsertGap(offset) {
+      const gap = document.createElement('div');
+      gap.className = 'mv-gap';
+      gap.setAttribute('data-mv-at', String(offset));
+      gap.setAttribute('contenteditable', 'false');
+      gap.innerHTML = '<div class="mv-gap-line"></div>' +
+        '<button type="button" class="mv-gap-add" title="Insert a new block here">' +
+          MV_ICONS.plus + '<span>Add block</span>' +
+        '</button>';
+
+      gap.querySelector('.mv-gap-add').addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openInsertMenu(gap, offset);
+      });
+      return gap;
+    }
+
+    function copyBlock(block, start, length, mode, button) {
+      let text;
+      if (mode === 'markdown') {
+        text = currentSource.substr(start, length).replace(/\n+$/, '');
+      } else {
+        // Plain text: what the block reads as, with the action chrome removed
+        // and the runaway whitespace of rendered HTML tidied away.
+        const clone = block.cloneNode(true);
+        clone.querySelectorAll('.mv-block-actions, .mv-gap').forEach((el) => el.remove());
+        text = (clone.innerText || '')
+          .split('\n')
+          .map((line) => line.replace(/[ \t]+/g, ' ').trim())
+          .filter((line, index, all) => line.length > 0 || (index > 0 && all[index - 1].length > 0))
+          .join('\n')
+          .trim();
+      }
+
+      postToHost({ action: 'copyBlock', text: text, mode: mode });
+      flashCopied(button);
+    }
+
+    function flashCopied(button) {
+      const label = button.querySelector('span');
+      if (!label || button.dataset.flashing === '1') return;
+      const original = label.textContent;
+      button.dataset.flashing = '1';
+      button.classList.add('copied');
+      label.textContent = '✓';
+      setTimeout(() => {
+        label.textContent = original;
+        button.classList.remove('copied');
+        delete button.dataset.flashing;
+      }, 900);
+    }
+
+    let insertMenu = null;
+
+    let insertMenuOwner = null;
+
+    function closeInsertMenu() {
+      if (!insertMenu) return;
+      insertMenu.remove();
+      insertMenu = null;
+      if (insertMenuOwner) {
+        insertMenuOwner.classList.remove('menu-open');
+        insertMenuOwner = null;
+      }
+    }
+
+    function openInsertMenu(gap, offset) {
+      closeInsertMenu();
+      closeCopyMenu();
+      gap.classList.add('menu-open');
+
+      const menu = document.createElement('div');
+      menu.className = 'mv-insert-menu';
+      menu.setAttribute('contenteditable', 'false');
+      menu.innerHTML = BLOCK_TEMPLATES.map((template) =>
+        '<button type="button" data-mv-template="' + template.id + '">' +
+          '<span class="mv-insert-icon">' + template.icon + '</span>' +
+          '<span class="mv-insert-label">' + template.label + '</span>' +
+        '</button>'
+      ).join('');
+
+      document.documentElement.appendChild(menu);
+      insertMenu = menu;
+      insertMenuOwner = gap;
+
+      const anchor = gap.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
+      const viewport = viewportSize();
+      const margin = 8;
+      let top = anchor.bottom + 4;
+      if (top + menuRect.height > viewport.height - margin) {
+        top = Math.max(margin, anchor.top - menuRect.height - 4);
+      }
+      menu.style.top = top + 'px';
+      menu.style.left = Math.max(margin, Math.min(anchor.left + 8, viewport.width - menuRect.width - margin)) + 'px';
+      requestAnimationFrame(() => menu.classList.add('visible'));
+
+      menu.addEventListener('mousedown', (event) => {
+        const button = event.target.closest('[data-mv-template]');
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+
+        const template = BLOCK_TEMPLATES.find((item) => item.id === button.getAttribute('data-mv-template'));
+        if (!template) return;
+        closeInsertMenu();
+        insertBlockAt(offset, template);
+      });
+    }
+
+    function insertBlockAt(offset, template) {
+      // A new block needs a blank line on each side or Markdown will merge it
+      // into its neighbours.
+      const before = currentSource.slice(0, offset);
+      const after = currentSource.slice(offset);
+
+      let prefix = '';
+      if (before.length > 0 && !before.endsWith('\n\n')) {
+        prefix = before.endsWith('\n') ? '\n' : '\n\n';
+      }
+      const suffix = after.startsWith('\n') || after.length === 0 ? '\n' : '\n\n';
+
+      pendingEditStart = offset + prefix.length;
+      postToHost({
+        action: 'insertBlock',
+        at: offset,
+        text: prefix + template.text + suffix
+      });
+    }
+
+    document.addEventListener('mousedown', (event) => {
+      if (insertMenu && !event.target.closest('.mv-insert-menu') && !event.target.closest('.mv-gap-add')) {
+        closeInsertMenu();
+      }
+      if (copyMenu && !event.target.closest('.mv-copy-menu') && !event.target.closest('[data-mv-action="copy"]')) {
+        closeCopyMenu();
+      }
+    });
+
+    // A rendered diagram is a picture. Being able to take it out of the app —
+    // into a slide, a ticket, a message — is most of what people want from
+    // one, so every diagram carries its own export controls.
+    function diagramSVG(wrapper) {
+      return wrapper.querySelector('svg');
+    }
+
+    /// The diagram's intrinsic size.
+    ///
+    /// The viewBox is the authority, not the laid-out box. On screen the
+    /// diagram is squeezed by `max-width: 100%` and whatever width the column
+    /// happens to be, so measuring the rendered element exports the *squashed*
+    /// geometry rather than the diagram mermaid actually drew.
+    function diagramSize(svg) {
+      const box = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+      if (box.length === 4 && box[2] > 0 && box[3] > 0) {
+        return { width: box[2], height: box[3] };
+      }
+      const rect = svg.getBoundingClientRect();
+      if (rect.width > 1 && rect.height > 1) {
+        return { width: rect.width, height: rect.height };
+      }
+      return { width: 800, height: 600 };
+    }
+
+    function diagramSVGText(wrapper) {
+      const svg = diagramSVG(wrapper);
+      if (!svg) return null;
+
+      const clone = svg.cloneNode(true);
+      const size = diagramSize(svg);
+
+      // Mermaid puts an inline `max-width` on the root and the stylesheet adds
+      // `height: auto`. Neither belongs in a standalone file: they would
+      // re-apply while the exported image is being rasterised and shrink the
+      // drawing back down inside its own canvas.
+      clone.style.removeProperty('max-width');
+      clone.style.removeProperty('width');
+      clone.style.removeProperty('height');
+      clone.setAttribute('width', size.width);
+      clone.setAttribute('height', size.height);
+      clone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+      if (!clone.getAttribute('viewBox')) {
+        clone.setAttribute('viewBox', `0 0 ${size.width} ${size.height}`);
+      }
+
+      // Page CSS does not travel with a serialised SVG, so the font it was
+      // laid out with has to come along or the text reflows against different
+      // metrics and no longer fits its boxes.
+      clone.style.setProperty('font-family', getComputedStyle(svg).fontFamily);
+      return new XMLSerializer().serializeToString(clone);
+    }
+
+    /// Rasterises the diagram at 2× so it stays sharp when it lands somewhere
+    /// else. Drawn onto an opaque background, because a transparent PNG pasted
+    /// into a dark app turns into an unreadable smear.
+    async function diagramPNG(wrapper) {
+      const svg = diagramSVG(wrapper);
+      const markup = diagramSVGText(wrapper);
+      if (!svg || !markup) return null;
+
+      const size = diagramSize(svg);
+      // 2× the diagram's own geometry, so the export is sharp without being
+      // tied to however wide the preview column happened to be.
+      const scale = 2;
+      const source = 'data:image/svg+xml;base64,' +
+        btoa(unescape(encodeURIComponent(markup)));
+
+      const image = new Image();
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = () => reject(new Error('The diagram could not be rasterised'));
+        image.src = source;
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(size.width * scale));
+      canvas.height = Math.max(1, Math.round(size.height * scale));
+
+      const context = canvas.getContext('2d');
+      const background = getComputedStyle(document.body).backgroundColor;
+      context.fillStyle = (background && background !== 'rgba(0, 0, 0, 0)')
+        ? background
+        : (isDarkModeCurrent ? '#1c1c1e' : '#ffffff');
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      return canvas.toDataURL('image/png');
+    }
+
+    function confirmDiagramButton(button, label) {
+      const original = button.textContent;
+      button.textContent = label;
+      button.classList.add('confirmed');
+      setTimeout(() => {
+        button.textContent = original;
+        button.classList.remove('confirmed');
+      }, 1400);
+    }
+
+    async function exportDiagram(wrapper, button, format, mode) {
+      try {
+        const payload = {
+          action: 'exportDiagram',
+          format: format,
+          mode: mode
+        };
+
+        if (format === 'svg') {
+          const markup = diagramSVGText(wrapper);
+          if (!markup) return;
+          payload.text = markup;
+        } else {
+          const dataURL = await diagramPNG(wrapper);
+          if (!dataURL) return;
+          payload.data = dataURL.replace(/^data:image\/png;base64,/, '');
+        }
+
+        postToHost(payload);
+        confirmDiagramButton(button, mode === 'copy' ? 'Copied' : 'Saved');
+      } catch (err) {
+        confirmDiagramButton(button, 'Failed');
+      }
+    }
+
+    function attachDiagramTools(wrapper) {
+      if (!wrapper || wrapper.querySelector('.mv-diagram-tools')) return;
+      if (!diagramSVG(wrapper)) return;
+
+      const tools = document.createElement('div');
+      tools.className = 'mv-diagram-tools';
+      tools.innerHTML =
+        '<button type="button" data-mv-diagram="copy-png" title="Copy this diagram as an image, ready to paste anywhere">Copy</button>' +
+        '<button type="button" data-mv-diagram="save-png" title="Save this diagram as a PNG image">PNG</button>' +
+        '<button type="button" data-mv-diagram="save-svg" title="Save this diagram as an SVG, which stays sharp at any size">SVG</button>';
+
+      tools.addEventListener('mousedown', (event) => event.preventDefault());
+      tools.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-mv-diagram]');
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+
+        switch (button.getAttribute('data-mv-diagram')) {
+          case 'copy-png': exportDiagram(wrapper, button, 'png', 'copy'); break;
+          case 'save-png': exportDiagram(wrapper, button, 'png', 'save'); break;
+          case 'save-svg': exportDiagram(wrapper, button, 'svg', 'save'); break;
+        }
+      });
+
+      wrapper.appendChild(tools);
+    }
+
+    function attachAllDiagramTools(root) {
+      (root || document).querySelectorAll('.mermaid-wrapper').forEach(attachDiagramTools);
+    }
+
+    /// Renders the Markdown inside a table we had to write as HTML.
+    ///
+    /// A table using merged or per-cell-aligned cells is saved as HTML, and its
+    /// cells still hold Markdown — `**bold**`, links. A raw HTML block is
+    /// passed through untouched, so without this those cells would show their
+    /// syntax as literal text. The `markdown="1"` attribute marks the tables
+    /// that opted in.
+    function renderMarkdownInHTMLTables(root) {
+      if (!window.marked) return;
+      (root || document).querySelectorAll('table[markdown="1"]').forEach((table) => {
+        table.querySelectorAll('th, td').forEach((cell) => {
+          const source = cell.textContent;
+          if (!source.trim()) return;
+          try {
+            cell.innerHTML = marked.parseInline(source);
+          } catch (e) {
+            // Leave the plain text in place rather than blanking the cell.
+          }
+        });
+      });
+    }
+
+    /// Points local images at the host, which can read them.
+    ///
+    /// The page itself is confined to the app bundle, so a path pointing
+    /// anywhere near the user's document — `diagram.png`, `./img/a.jpg`,
+    /// `/Users/me/shot.png` — cannot be opened from here and renders broken.
+    /// Remote and inline images are already fine and are left alone.
+    function resolveLocalImages(root) {
+      (root || document).querySelectorAll('img').forEach((img) => {
+        const raw = img.getAttribute('src') || '';
+        if (!raw || /^(https?:|data:|blob:|mvlocal:)/i.test(raw)) return;
+
+        let path = raw;
+        if (/^file:\/\//i.test(path)) {
+          try { path = decodeURIComponent(new URL(path).pathname); } catch (e) { return; }
+        }
+        // The path travels as a query parameter so nothing in it has to
+        // survive URL path normalisation.
+        img.setAttribute('src', 'mvlocal://doc/?p=' + encodeURIComponent(path));
+        img.addEventListener('error', () => {
+          img.classList.add('mv-missing-image');
+          img.setAttribute('title', 'Couldn’t find this image: ' + raw);
+        }, { once: true });
+      });
+    }
+
+    async function renderPureMermaid(code, container) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'mermaid-wrapper';
+      const mmdContainer = document.createElement('div');
+      mmdContainer.className = 'mermaid';
+      wrapper.appendChild(mmdContainer);
+      container.appendChild(wrapper);
+
+      try {
+        const id = 'mermaid-svg-' + Math.round(Math.random() * 1000000);
+        const { svg } = await mermaid.render(id, code.trim());
+        mmdContainer.innerHTML = svg;
+        attachDiagramTools(wrapper);
+      } catch (err) {
+        container.innerHTML = `
+          <div class="render-error">
+            <h3>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Couldn’t render this diagram
+            </h3>
+            <p>There appears to be an error in the Mermaid syntax.</p>
+            <pre>${escapeHtml(err.message || String(err))}</pre>
+            <button class="view-source-btn" onclick="notifySwitchToSource()">View Source</button>
+          </div>
+        `;
+      }
+    }
+
+    async function renderMarkdown(markdownText, container) {
+      if (!window.marked) {
+        container.innerText = markdownText;
+        return;
+      }
+
+      // Rendered block by block rather than in one pass, so every element on
+      // screen knows the exact source range it came from. That is what makes
+      // editing in the preview possible without re-serialising the whole
+      // document: an edited block is spliced back into its own range and the
+      // rest of the file stays byte-for-byte identical.
+      const tokens = marked.lexer(markdownText);
+      container.innerHTML = '';
+
+      let offset = 0;
+      for (const token of tokens) {
+        const raw = token.raw || '';
+        const single = [token];
+        // `marked.parser` reads link definitions off the array itself.
+        single.links = tokens.links || {};
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mv-block';
+        wrapper.setAttribute('data-mv-start', String(offset));
+        wrapper.setAttribute('data-mv-length', String(raw.length));
+        wrapper.innerHTML = marked.parser(single);
+        container.appendChild(wrapper);
+
+        offset += raw.length;
+      }
+
+      const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        cb.disabled = true;
+        const parent = cb.parentElement;
+        if (parent && parent.tagName === 'LI') {
+          parent.classList.add('task-list-item');
+          if (parent.parentElement) {
+            parent.parentElement.classList.add('contains-task-list');
+          }
+        }
+      });
+
+      const codeBlocks = container.querySelectorAll('pre code.language-mermaid, pre code.lang-mermaid');
+      for (let i = 0; i < codeBlocks.length; i++) {
+        const codeEl = codeBlocks[i];
+        const preEl = codeEl.parentElement;
+        const diagramCode = codeEl.textContent;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mermaid-wrapper';
+        const mmdContainer = document.createElement('div');
+        mmdContainer.className = 'mermaid';
+        wrapper.appendChild(mmdContainer);
+
+        preEl.parentNode.replaceChild(wrapper, preEl);
+
+        try {
+          const id = 'mermaid-embedded-' + i + '-' + Math.round(Math.random() * 10000);
+          const { svg } = await mermaid.render(id, diagramCode.trim());
+          mmdContainer.innerHTML = svg;
+          attachDiagramTools(wrapper);
+        } catch (err) {
+          wrapper.parentNode.replaceChild(preEl, wrapper);
+        }
+      }
+
+      highlightCodeBlocks(container);
+      attachAllDiagramTools(container);
+      renderMarkdownInHTMLTables(container);
+      resolveLocalImages(container);
+    }
+
+    const SYNTAX_KEYWORDS = {
+      rust: new Set('as async await break const continue crate dyn else enum extern false fn for if impl in let loop match mod move mut pub ref return self Self static struct super trait true type unsafe use where while'.split(' ')),
+      swift: new Set('actor any as associatedtype async await break case catch class continue default defer deinit do else enum extension fallthrough false fileprivate for func guard if import in init inout internal is isolated let nil nonisolated open operator private protocol public repeat rethrows return self Self some static struct subscript super switch throw throws true try typealias var where while'.split(' ')),
+      python: new Set('and as assert async await break class continue def del elif else except False finally for from global if import in is lambda None nonlocal not or pass raise return True try while with yield'.split(' ')),
+      javascript: new Set('as async await break case catch class const continue debugger default delete do else export extends false finally for from function get if import in instanceof let new null of return set static super switch this throw true try typeof undefined var void while with yield'.split(' ')),
+      typescript: new Set('abstract any as async await boolean break case catch class const constructor continue declare default delete do else enum export extends false finally for from function get if implements import in infer instanceof interface keyof let namespace never new null number object of private protected public readonly return set static string super switch symbol this throw true try type typeof undefined unknown var void while with yield'.split(' '))
+    };
+
+    function syntaxLanguage(codeElement) {
+      const languageClass = Array.from(codeElement.classList).find((name) =>
+        name.startsWith('language-') || name.startsWith('lang-')
+      );
+      if (!languageClass) return '';
+      const value = languageClass.replace(/^language-|^lang-/, '').toLowerCase();
+      const aliases = { rs: 'rust', py: 'python', js: 'javascript', jsx: 'javascript', ts: 'typescript', tsx: 'typescript' };
+      return aliases[value] || value;
+    }
+
+    function escapeSyntax(text) {
+      return text.replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    function highlightCode(source, language) {
+      const common = new Set('break case catch class const continue default else enum false for function if import in let nil null private public return static struct switch throw true try type var while'.split(' '));
+      const keywords = SYNTAX_KEYWORDS[language] || common;
+      const tokenPattern = /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[^\n]*|\b\d+(?:\.\d+)?\b|\b[A-Za-z_][A-Za-z0-9_]*!?|[-+*/%=!<>|&^~?:]+)/g;
+      let output = '';
+      let cursor = 0;
+      let match;
+
+      while ((match = tokenPattern.exec(source)) !== null) {
+        output += escapeSyntax(source.slice(cursor, match.index));
+        const token = match[0];
+        let role = '';
+
+        if (token.startsWith('//') || token.startsWith('/*') || (token.startsWith('#') && ['python', 'ruby', 'shell', 'bash', 'yaml'].includes(language))) {
+          role = 'comment';
+        } else if (token.startsWith('"') || token.startsWith("'")) {
+          role = 'string';
+        } else if (/^\d/.test(token)) {
+          role = 'number';
+        } else if (keywords.has(token)) {
+          role = 'keyword';
+        } else if (/^[A-Z]/.test(token)) {
+          role = 'type';
+        } else if (token.endsWith('!') || /^\s*\(/.test(source.slice(tokenPattern.lastIndex))) {
+          role = 'function';
+        } else if (/^[-+*/%=!<>|&^~?:]+$/.test(token)) {
+          role = 'operator';
+        }
+
+        output += role ? `<span class="syntax-${role}">${escapeSyntax(token)}</span>` : escapeSyntax(token);
+        cursor = tokenPattern.lastIndex;
+      }
+
+      return output + escapeSyntax(source.slice(cursor));
+    }
+
+    function highlightCodeBlocks(container) {
+      const codeBlocks = container.querySelectorAll('pre code');
+      codeBlocks.forEach((codeElement) => {
+        if (codeElement.closest('.mermaid-wrapper') || codeElement.dataset.syntaxHighlighted === 'true') return;
+        const language = syntaxLanguage(codeElement);
+        if (language === 'mermaid') return;
+
+        const source = codeElement.textContent || '';
+        codeElement.innerHTML = highlightCode(source, language);
+        codeElement.dataset.syntaxHighlighted = 'true';
+        if (language && codeElement.parentElement) {
+          codeElement.parentElement.dataset.language = language;
+        }
+      });
+    }
+
+    // Scroll & Highlight API for Swift Bridge
+    function scrollToBlock(blockId, reduceMotion) {
+      const el = document.querySelector(`[data-markview-block-id="${blockId}"]`) || document.getElementById(blockId);
+      if (!el) return false;
+
+      const targetTop = Math.max(0, window.scrollY + el.getBoundingClientRect().top - (window.innerHeight * 0.35));
+      window.scrollTo({
+        top: targetTop,
+        behavior: reduceMotion ? 'auto' : 'smooth'
+      });
+
+      el.classList.add('markview-highlight');
+      setTimeout(() => {
+        el.classList.remove('markview-highlight');
+      }, reduceMotion ? 900 : 2200);
+
+      return true;
+    }
+
+    let searchMatchElements = [];
+
+    function clearSearchHighlights() {
+      searchMatchElements.forEach((element) => {
+        const parent = element.parentNode;
+        if (!parent) return;
+        parent.replaceChild(document.createTextNode(element.textContent || ''), element);
+        parent.normalize();
+      });
+      searchMatchElements = [];
+    }
+
+    // Returns the number of matches highlighted, so callers can retry with a
+    // looser query rather than assuming the first one landed.
+    function highlightSearchMatches(query, currentIndex) {
+      clearSearchHighlights();
+      const normalized = (query || '').trim();
+      if (!normalized) return 0;
+
+      const walker = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT);
+      const textNodes = [];
+      let node;
+      while (node = walker.nextNode()) {
+        if (node.parentElement && !node.parentElement.closest('script, style, .mermaid, .mv-block-actions, .mv-gap, .mv-insert-menu')) {
+          textNodes.push(node);
+        }
+      }
+
+      const escaped = normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const expression = new RegExp(escaped, 'gi');
+      textNodes.forEach((textNode) => {
+        const source = textNode.nodeValue || '';
+        let cursor = 0;
+        let match;
+        const fragment = document.createDocumentFragment();
+        let didMatch = false;
+
+        while ((match = expression.exec(source)) !== null) {
+          didMatch = true;
+          fragment.appendChild(document.createTextNode(source.slice(cursor, match.index)));
+          const mark = document.createElement('span');
+          mark.className = 'markview-search-match';
+          mark.textContent = match[0];
+          fragment.appendChild(mark);
+          searchMatchElements.push(mark);
+          cursor = match.index + match[0].length;
+          if (match[0].length === 0) expression.lastIndex += 1;
+        }
+
+        if (didMatch) {
+          fragment.appendChild(document.createTextNode(source.slice(cursor)));
+          textNode.parentNode.replaceChild(fragment, textNode);
+        }
+        expression.lastIndex = 0;
+      });
+
+      setCurrentSearchMatch(currentIndex || 0);
+      return searchMatchElements.length;
+    }
+
+    function setCurrentSearchMatch(index) {
+      searchMatchElements.forEach((element) => element.classList.remove('markview-search-current'));
+      if (!searchMatchElements.length) return;
+      const safeIndex = Math.max(0, Math.min(index, searchMatchElements.length - 1));
+      const current = searchMatchElements[safeIndex];
+      current.classList.add('markview-search-current');
+      current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // A quote from the AI is matched against *rendered* text, so it can miss
+    // for reasons that have nothing to do with being wrong: it still carries
+    // Markdown syntax, it wraps across elements, or it was normalised. Fall
+    // back to progressively looser candidates instead of silently doing
+    // nothing when the exact string isn't found.
+    function findText(query) {
+      const raw = (query || '').trim();
+      if (!raw) return false;
+
+      const stripped = raw
+        .replace(/^[#>\s]*[-*+]?\s*/, '')
+        .replace(/[*_`~]/g, '')
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+        .trim();
+      const firstLine = stripped.split('\n')[0].trim();
+
+      const candidates = [raw, stripped, firstLine];
+      if (firstLine.length > 40) {
+        candidates.push(firstLine.slice(0, 40).trim());
+      }
+      const words = firstLine.split(/\s+/).filter(Boolean);
+      if (words.length > 4) {
+        candidates.push(words.slice(0, 4).join(' '));
+      }
+
+      for (const candidate of candidates) {
+        if (!candidate || candidate.length < 3) continue;
+        if (highlightSearchMatches(candidate, 0) > 0) {
+          setTimeout(() => clearSearchHighlights(), 2200);
+          return true;
+        }
+      }
+
+      clearSearchHighlights();
+      return false;
+    }
+
+    // Editing a block in place
+    //
+    // Double-clicking a block swaps its rendered HTML for its own Markdown
+    // source in a textarea. Committing posts just that block's range back to
+    // Swift, which splices it into the document — no HTML-to-Markdown
+    // conversion, so nothing outside the edited block can be reformatted or
+    // lost.
+    let activeBlockEditor = null;
+
+    function beginBlockEdit(wrapper) {
+      if (activeBlockEditor) return;
+      if (!wrapper || !wrapper.hasAttribute('data-mv-start')) return;
+
+      const start = parseInt(wrapper.getAttribute('data-mv-start'), 10);
+      const length = parseInt(wrapper.getAttribute('data-mv-length'), 10);
+      if (Number.isNaN(start) || Number.isNaN(length)) return;
+
+      const source = currentSource.substr(start, length).replace(/\n+$/, '');
+      const editor = document.createElement('textarea');
+      editor.className = 'mv-block-editor';
+      editor.value = source;
+      // `auto` gives Persian blocks an RTL caret and alignment without the
+      // user configuring anything.
+      editor.setAttribute('dir', 'auto');
+      editor.spellcheck = false;
+
+      const rendered = wrapper.innerHTML;
+      closeInsertMenu();
+      closeCopyMenu();
+      wrapper.innerHTML = '';
+      wrapper.appendChild(editor);
+      wrapper.classList.add('editing');
+
+      activeBlockEditor = { wrapper: wrapper, editor: editor, start: start, length: length, rendered: rendered };
+
+      // The double-click that opened the editor also selected a word, which
+      // would otherwise leave the Ask/Explain bar floating over it.
+      hideSelectionBar();
+      const selection = window.getSelection();
+      if (selection) selection.removeAllRanges();
+
+      autoSize(editor);
+      editor.focus();
+      editor.setSelectionRange(editor.value.length, editor.value.length);
+
+      editor.addEventListener('input', () => autoSize(editor));
+      editor.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          cancelBlockEdit();
+        } else if (event.key === 'Enter' && (event.metaKey || event.shiftKey === false && event.ctrlKey)) {
+          event.preventDefault();
+          commitBlockEdit();
+        }
+      });
+      editor.addEventListener('blur', () => commitBlockEdit());
+    }
+
+    function autoSize(editor) {
+      editor.style.height = 'auto';
+      editor.style.height = (editor.scrollHeight + 2) + 'px';
+    }
+
+    function cancelBlockEdit() {
+      if (!activeBlockEditor) return;
+      const state = activeBlockEditor;
+      activeBlockEditor = null;
+      state.wrapper.classList.remove('editing');
+      state.wrapper.innerHTML = state.rendered;
+    }
+
+    function commitBlockEdit() {
+      if (!activeBlockEditor) return;
+      const state = activeBlockEditor;
+      activeBlockEditor = null;
+      state.wrapper.classList.remove('editing');
+
+      const updated = state.editor.value;
+      const original = currentSource.substr(state.start, state.length);
+
+      if (updated === original.replace(/\n+$/, '')) {
+        state.wrapper.innerHTML = state.rendered;
+        return;
+      }
+
+      // Keep the block separation the original had, so committing an edit
+      // never welds two blocks together.
+      const trailing = original.match(/\n+$/);
+      postToHost({
+        action: 'blockEdited',
+        start: state.start,
+        length: state.length,
+        text: updated + (trailing ? trailing[0] : '')
+      });
+    }
+
+    document.addEventListener('dblclick', (event) => {
+      const wrapper = event.target.closest ? event.target.closest('.mv-block') : null;
+      if (!wrapper) return;
+      // Diagrams have no meaningful text form to edit in place.
+      if (wrapper.querySelector('.mermaid-wrapper')) return;
+      event.preventDefault();
+      beginBlockEdit(wrapper);
+    });
+
+    // Selection: report it, and offer actions on it
+    function postToHost(payload) {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.markview) {
+        window.webkit.messageHandlers.markview.postMessage(payload);
+      }
+    }
+
+    function currentSelectionInfo() {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) return null;
+
+      const text = selection.toString().trim();
+      if (!text) return null;
+
+      const range = selection.getRangeAt(0);
+      const content = document.getElementById('content');
+      // Ignore selections outside the document body (e.g. chrome elements).
+      if (content && !content.contains(range.commonAncestorContainer)) return null;
+
+      const anchor = selection.anchorNode ? selection.anchorNode.parentElement : null;
+      const block = anchor ? anchor.closest('[data-markview-block-id]') : null;
+
+      // A selection spanning several lines has a tall bounding box; anchoring
+      // the bar to it would push it far from the text. Use the first and last
+      // line boxes instead.
+      const rects = Array.from(range.getClientRects())
+        .filter((rect) => rect.width > 0 && rect.height > 0);
+      const fallback = range.getBoundingClientRect();
+
+      return {
+        text: text,
+        firstRect: rects.length ? rects[0] : fallback,
+        lastRect: rects.length ? rects[rects.length - 1] : fallback,
+        blockId: block ? block.getAttribute('data-markview-block-id') : null
+      };
+    }
+
+    const selectionBar = document.getElementById('markview-selection-bar');
+    // `setZoom` scales <body>, which would scale the bar and throw off the
+    // viewport coordinates it is positioned with. Hoist it out of <body> so it
+    // stays in unscaled viewport space at any zoom level.
+    if (selectionBar) {
+      document.documentElement.appendChild(selectionBar);
+    }
+
+    function hideSelectionBar() {
+      if (selectionBar) selectionBar.classList.remove('visible');
+    }
+
+    function showSelectionBar(info) {
+      if (!selectionBar) return;
+
+      selectionBar.classList.add('visible');
+      const barRect = selectionBar.getBoundingClientRect();
+      const margin = 8;
+
+      // Prefer sitting above the first line of the selection; drop below the
+      // last line when there's no room, and go back above if that would fall
+      // off the bottom.
+      let anchor = info.firstRect;
+      let top = anchor.top - barRect.height - margin;
+
+      const viewport = viewportSize();
+      if (top < margin) {
+        anchor = info.lastRect;
+        top = anchor.bottom + margin;
+        if (top + barRect.height > viewport.height - margin) {
+          anchor = info.firstRect;
+          top = Math.max(margin, anchor.top - barRect.height - margin);
+        }
+      }
+
+      let left = anchor.left + (anchor.width / 2) - (barRect.width / 2);
+      left = Math.max(margin, Math.min(left, viewport.width - barRect.width - margin));
+
+      selectionBar.style.left = left + 'px';
+      selectionBar.style.top = top + 'px';
+    }
+
+    function runSelectionAction(kind) {
+      const info = currentSelectionInfo();
+      if (!info) return;
+      postToHost({ action: 'selectionAction', kind: kind, text: info.text });
+      hideSelectionBar();
+    }
+
+    if (selectionBar) {
+      // mousedown, not click: a click would first collapse the selection.
+      selectionBar.addEventListener('mousedown', (event) => {
+        const button = event.target.closest('[data-selection-action]');
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        runSelectionAction(button.getAttribute('data-selection-action'));
+      });
+    }
+
+    document.addEventListener('selectionchange', () => {
+      const info = currentSelectionInfo();
+      if (!info) {
+        // A collapsed selection is NOT reported to the host: losing focus to
+        // the chat collapses it, and that must not discard the context the
+        // user just picked. The bar still hides, so the UI stays truthful.
+        hideSelectionBar();
+        return;
+      }
+
+      postToHost({ action: 'selectionChanged', text: info.text, blockId: info.blockId });
+      showSelectionBar(info);
+    });
+
+    window.addEventListener('scroll', () => {
+      const info = currentSelectionInfo();
+      if (info) {
+        showSelectionBar(info);
+      } else {
+        hideSelectionBar();
+      }
+    }, { passive: true });
+
+    function notifySwitchToSource() {
+      if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.markview) {
+        window.webkit.messageHandlers.markview.postMessage({ action: 'switchToSource' });
+      }
+    }
+
+    function escapeHtml(str) {
+      return (str || '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    let currentZoom = 1.0;
+    function setZoom(factor) {
+      currentZoom = factor;
+      document.body.style.zoom = currentZoom;
+    }
+  </script>
+</body>
+</html>

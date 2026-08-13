@@ -1,0 +1,668 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5338B723E3264F39B30A1AD6 /* MarkViewApp.swift in source */ = {isa = PBXBuildFile; fileRef = 917DE8024CDB4CFD99F9AF8A /* MarkViewApp.swift */; };
+		F5E44D2DAEA9412E88216989 /* DocumentModel.swift in source */ = {isa = PBXBuildFile; fileRef = B6727012FF5C433A8B6F4F4B /* DocumentModel.swift */; };
+		E9AB6FAF359A4990A38B7B3F /* DocumentLoader.swift in source */ = {isa = PBXBuildFile; fileRef = 8B8714E64372490DB8869937 /* DocumentLoader.swift */; };
+		9BFC951C31244928AF20E526 /* FileWatcher.swift in source */ = {isa = PBXBuildFile; fileRef = C51FF71EA85947AEBA7EAD2B /* FileWatcher.swift */; };
+		E7479E917A8942D0AB96F5E5 /* ContentView.swift in source */ = {isa = PBXBuildFile; fileRef = 05E9C628498E4C8290A9A66E /* ContentView.swift */; };
+		326ED6ECD89247CFA3D988D3 /* DocumentView.swift in source */ = {isa = PBXBuildFile; fileRef = C19461CCE7B3470491F57665 /* DocumentView.swift */; };
+		A2A82527FD344F679057C537 /* SourceView.swift in source */ = {isa = PBXBuildFile; fileRef = FF7DA0F215FB49A0AEF51A06 /* SourceView.swift */; };
+		3CA41A157278486CB0995DEA /* RendererWebView.swift in source */ = {isa = PBXBuildFile; fileRef = 28E24B582FED41209DF433ED /* RendererWebView.swift */; };
+		9CEF19E143324BFD83155CEB /* InspectorView.swift in source */ = {isa = PBXBuildFile; fileRef = E4F4B38E4AD84062BF0C7BE3 /* InspectorView.swift */; };
+		DCAB01F5C19746E5B4D00895 /* AppCommands.swift in source */ = {isa = PBXBuildFile; fileRef = 617A30D0020F4B2DB2E557F9 /* AppCommands.swift */; };
+		F5935C28F5BE4AE8A97A29CA /* renderer.html in resource */ = {isa = PBXBuildFile; fileRef = 21B28742F6674DD7AC8B5657 /* renderer.html */; };
+		FA9342A0015F4E28A71D9479 /* renderer.css in resource */ = {isa = PBXBuildFile; fileRef = 533C69D102CB4F808DAF97A0 /* renderer.css */; };
+		F354A5875FB34B65B3DB462D /* marked.min.js in resource */ = {isa = PBXBuildFile; fileRef = A887F295C0CC4670AFB3FC6C /* marked.min.js */; };
+		A2DE6D83AA3242D7B4037541 /* mermaid.min.js in resource */ = {isa = PBXBuildFile; fileRef = 2FE34AF2A414424C82AC4842 /* mermaid.min.js */; };
+		A09441544142425AB9E06058 /* Assets.xcassets in resource */ = {isa = PBXBuildFile; fileRef = 99721EA2BB4549D180C6E306 /* Assets.xcassets */; };
+		05FC63CFCA9F4CC79C228A17 /* MarkViewTests.swift in test_source */ = {isa = PBXBuildFile; fileRef = 4854A2B8F9B940D2ADB3B286 /* MarkViewTests.swift */; };
+		B10000000000000000000001 /* KeychainService.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* KeychainService.swift */; };
+		B10000000000000000000002 /* AIModels.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* AIModels.swift */; };
+		B40000000000000000000001 /* AITokenUsage.swift in source */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* AITokenUsage.swift */; };
+		B10000000000000000000003 /* AIProvider.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* AIProvider.swift */; };
+		B10000000000000000000004 /* GeminiProvider.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* GeminiProvider.swift */; };
+		B10000000000000000000005 /* OpenAIProvider.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* OpenAIProvider.swift */; };
+		B10000000000000000000006 /* MockAIProvider.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000006 /* MockAIProvider.swift */; };
+		B10000000000000000000007 /* DiffEngine.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000007 /* DiffEngine.swift */; };
+		B10000000000000000000008 /* DocumentSafetyService.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000008 /* DocumentSafetyService.swift */; };
+		B10000000000000000000009 /* AIService.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000009 /* AIService.swift */; };
+		B10000000000000000000010 /* AISettingsView.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000010 /* AISettingsView.swift */; };
+		B10000000000000000000011 /* DiffReviewSheet.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000011 /* DiffReviewSheet.swift */; };
+		B10000000000000000000012 /* AIAssistantSidebar.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* AIAssistantSidebar.swift */; };
+		B10000000000000000000013 /* DocumentLocation.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* DocumentLocation.swift */; };
+		B10000000000000000000014 /* DocumentIndex.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000014 /* DocumentIndex.swift */; };
+		B10000000000000000000015 /* DocumentNavigator.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000015 /* DocumentNavigator.swift */; };
+		B10000000000000000000016 /* FindBarView.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000016 /* FindBarView.swift */; };
+		B10000000000000000000017 /* StreamingTextView.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000017 /* StreamingTextView.swift */; };
+		B10000000000000000000018 /* AIDiffView.swift in source */ = {isa = PBXBuildFile; fileRef = A10000000000000000000018 /* AIDiffView.swift */; };
+		B20000000000000000000001 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* fonts */; };
+		B30000000000000000000001 /* OpenAICompatibleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000001 /* OpenAICompatibleProvider.swift */; };
+		B30000000000000000000002 /* AnthropicProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000002 /* AnthropicProvider.swift */; };
+		DA9A00AC8C3943D9BD4ED2FF /* PromptAttachments.swift in source */ = {isa = PBXBuildFile; fileRef = 90C0E255E89E47A7B25B3CB2 /* PromptAttachments.swift */; };
+		92E1AF553C1349F685C11FC0 /* PromptAttachmentViews.swift in source */ = {isa = PBXBuildFile; fileRef = 493649D1CE044B38925C0F0B /* PromptAttachmentViews.swift */; };
+		F0F2265E55E94B3086474B8A /* MarkdownFormatter.swift in source */ = {isa = PBXBuildFile; fileRef = 209A56F5C9D34F32A4E1AF39 /* MarkdownFormatter.swift */; };
+		3E43D94E1267401B9B2AE30D /* PersianTextTools.swift in source */ = {isa = PBXBuildFile; fileRef = CD5FFC9196D34E93A67CC7C5 /* PersianTextTools.swift */; };
+		6C729E5728BA46D88AE09CF5 /* FormattingSidebar.swift in source */ = {isa = PBXBuildFile; fileRef = AEDAFF00EEB548A18A0D67DC /* FormattingSidebar.swift */; };
+		C220684981B54C5990802B91 /* DocumentStarterView.swift in source */ = {isa = PBXBuildFile; fileRef = 6007B2DCAA4B4F44BF42FFEC /* DocumentStarterView.swift */; };
+		DF578782456E4F979B7BD818 /* SourceSelectionResolver.swift in source */ = {isa = PBXBuildFile; fileRef = 7079E39FAC254C408CEA99E0 /* SourceSelectionResolver.swift */; };
+		E71FA0AC0CF0497585156DA7 /* DocumentModel.swift in source */ = {isa = PBXBuildFile; fileRef = 41D8077B64DC457AB23501CF /* DocumentModel.swift */; };
+		27C5181EE3E2426B9A4DCA17 /* MarkdownDocumentParser.swift in source */ = {isa = PBXBuildFile; fileRef = 2130C9C9F25E4ECA9AA34B27 /* MarkdownDocumentParser.swift */; };
+		9F7F660596A84D3A80742D57 /* MarkdownDocumentSerializer.swift in source */ = {isa = PBXBuildFile; fileRef = BC287979D5FD4C85B8A9C43F /* MarkdownDocumentSerializer.swift */; };
+		B46BFED79C9447F4B723072D /* DocumentModelTests.swift in source */ = {isa = PBXBuildFile; fileRef = FBAD3BE846A54A14AFF09EF1 /* DocumentModelTests.swift */; };
+		593D0BE959D54885BBE54376 /* DocumentOperation.swift in source */ = {isa = PBXBuildFile; fileRef = FAA20D0D9FA34F309A9EF8FC /* DocumentOperation.swift */; };
+		8AF24FBA6DBB4679861773B6 /* RichTextDocumentBridge.swift in source */ = {isa = PBXBuildFile; fileRef = 237DF903ED2E45C9A979067A /* RichTextDocumentBridge.swift */; };
+		5CEC660C5B5A47979C7F401E /* RichTextCanvasTests.swift in source */ = {isa = PBXBuildFile; fileRef = BDF07A629099499D8D918821 /* RichTextCanvasTests.swift */; };
+		06B79616E0C34AF1B7467FCB /* RichTextCanvas.swift in source */ = {isa = PBXBuildFile; fileRef = 61A676D2B73A451C973164AB /* RichTextCanvas.swift */; };
+		996EE90C5C92425EA98F9F27 /* DocumentTableView.swift in source */ = {isa = PBXBuildFile; fileRef = B87D2CADF7414DF989643D43 /* DocumentTableView.swift */; };
+		F60718293A4B5C6D7E8F9012 /* ChatHistoryView.swift in source */ = {isa = PBXBuildFile; fileRef = A596876543210FEDCBA98765 /* ChatHistoryView.swift */; };
+		D4E5F60718293A4B5C6D7E8F /* ChatStorage.swift in source */ = {isa = PBXBuildFile; fileRef = C3B4A596876543210FEDCBA9 /* ChatStorage.swift */; };
+		B2C3D4E5F60718293A4B5C6D /* DocumentTextExtractor.swift in source */ = {isa = PBXBuildFile; fileRef = E1D2C3B4A596876543210FED /* DocumentTextExtractor.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* SelectionToolbar.swift in source */ = {isa = PBXBuildFile; fileRef = F0E1D2C3B4A59687564534A2 /* SelectionToolbar.swift */; };
+		8388FE905252445C92C8E318 /* TableSelectionBridge.swift in source */ = {isa = PBXBuildFile; fileRef = A3C1AABC8A85451A85ACC7F2 /* TableSelectionBridge.swift */; };
+		CCB15202BA9C4DCE8B6BBD9A /* AIDocumentOperations.swift in source */ = {isa = PBXBuildFile; fileRef = 9134A9D21DB646C8ABCA6D29 /* AIDocumentOperations.swift */; };
+		F6791F6E98C24CA0A678B093 /* AIOperationTests.swift in source */ = {isa = PBXBuildFile; fileRef = 5842D322DA5841EF94C0541C /* AIOperationTests.swift */; };
+		E5F60718293A4B5C6D7E8F90 /* ChatStorageTests.swift in source */ = {isa = PBXBuildFile; fileRef = B4A596876543210FEDCBA987 /* ChatStorageTests.swift */; };
+		C3D4E5F60718293A4B5C6D7E /* DocumentTextExtractorTests.swift in source */ = {isa = PBXBuildFile; fileRef = D2C3B4A596876543210FEDCB /* DocumentTextExtractorTests.swift */; };
+		B50000000000000000000001 /* DocumentActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000001 /* DocumentActions.swift */; };
+		B50000000000000000000002 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000002 /* WelcomeView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1BE309CFC60E4461826A9271 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 056CF82FE7414745A3BF85A3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6F781ABD0ED546B3BB06C4F1;
+			remoteInfo = MarkView;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		8A95A40CF3E049BBB626214C /* Markowski.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Markowski.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2958653C6989474A8DCE8799 /* MarkViewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MarkViewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		917DE8024CDB4CFD99F9AF8A /* MarkViewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkViewApp.swift"; sourceTree = "<group>"; };
+		B6727012FF5C433A8B6F4F4B /* DocumentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentModel.swift"; sourceTree = "<group>"; };
+		8B8714E64372490DB8869937 /* DocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentLoader.swift"; sourceTree = "<group>"; };
+		C51FF71EA85947AEBA7EAD2B /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileWatcher.swift"; sourceTree = "<group>"; };
+		05E9C628498E4C8290A9A66E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentView.swift"; sourceTree = "<group>"; };
+		C19461CCE7B3470491F57665 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentView.swift"; sourceTree = "<group>"; };
+		FF7DA0F215FB49A0AEF51A06 /* SourceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SourceView.swift"; sourceTree = "<group>"; };
+		28E24B582FED41209DF433ED /* RendererWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RendererWebView.swift"; sourceTree = "<group>"; };
+		E4F4B38E4AD84062BF0C7BE3 /* InspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InspectorView.swift"; sourceTree = "<group>"; };
+		617A30D0020F4B2DB2E557F9 /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCommands.swift"; sourceTree = "<group>"; };
+		21B28742F6674DD7AC8B5657 /* renderer.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "renderer.html"; sourceTree = "<group>"; };
+		533C69D102CB4F808DAF97A0 /* renderer.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "renderer.css"; sourceTree = "<group>"; };
+		A887F295C0CC4670AFB3FC6C /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "marked.min.js"; sourceTree = "<group>"; };
+		2FE34AF2A414424C82AC4842 /* mermaid.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "mermaid.min.js"; sourceTree = "<group>"; };
+		99721EA2BB4549D180C6E306 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
+		2F4B58685F3B4610A3309E82 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		4854A2B8F9B940D2ADB3B286 /* MarkViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkViewTests.swift"; sourceTree = "<group>"; };
+		A10000000000000000000001 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Security/KeychainService.swift"; sourceTree = "<group>"; };
+		A10000000000000000000002 /* AIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Models/AIModels.swift"; sourceTree = "<group>"; };
+		A40000000000000000000001 /* AITokenUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Models/AITokenUsage.swift"; sourceTree = "<group>"; };
+		A10000000000000000000003 /* AIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/AIProvider.swift"; sourceTree = "<group>"; };
+		A10000000000000000000004 /* GeminiProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/Google/GeminiProvider.swift"; sourceTree = "<group>"; };
+		A10000000000000000000005 /* OpenAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/OpenAI/OpenAIProvider.swift"; sourceTree = "<group>"; };
+		A10000000000000000000006 /* MockAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/MockAIProvider.swift"; sourceTree = "<group>"; };
+		A10000000000000000000007 /* DiffEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Diff/DiffEngine.swift"; sourceTree = "<group>"; };
+		A10000000000000000000008 /* DocumentSafetyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Safety/DocumentSafetyService.swift"; sourceTree = "<group>"; };
+		A10000000000000000000009 /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/AIService.swift"; sourceTree = "<group>"; };
+		A10000000000000000000010 /* AISettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Settings/AISettingsView.swift"; sourceTree = "<group>"; };
+		A10000000000000000000011 /* DiffReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/AI/DiffReviewSheet.swift"; sourceTree = "<group>"; };
+		A10000000000000000000012 /* AIAssistantSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/AI/AIAssistantSidebar.swift"; sourceTree = "<group>"; };
+		A10000000000000000000013 /* DocumentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Models/DocumentLocation.swift"; sourceTree = "<group>"; };
+		A10000000000000000000014 /* DocumentIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Models/DocumentIndex.swift"; sourceTree = "<group>"; };
+		A10000000000000000000015 /* DocumentNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Navigation/DocumentNavigator.swift"; sourceTree = "<group>"; };
+		A10000000000000000000016 /* FindBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Search/FindBarView.swift"; sourceTree = "<group>"; };
+		A10000000000000000000017 /* StreamingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/AI/StreamingTextView.swift"; sourceTree = "<group>"; };
+		A10000000000000000000018 /* AIDiffView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/AI/AIDiffView.swift"; sourceTree = "<group>"; };
+		A20000000000000000000001 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fonts; sourceTree = SOURCE_ROOT; };
+		A30000000000000000000001 /* OpenAICompatibleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/OpenAI/OpenAICompatibleProvider.swift"; sourceTree = SOURCE_ROOT; };
+		A30000000000000000000002 /* AnthropicProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/Anthropic/AnthropicProvider.swift"; sourceTree = SOURCE_ROOT; };
+		90C0E255E89E47A7B25B3CB2 /* PromptAttachments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Models/PromptAttachments.swift"; sourceTree = "<group>"; };
+		493649D1CE044B38925C0F0B /* PromptAttachmentViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/AI/PromptAttachmentViews.swift"; sourceTree = "<group>"; };
+		209A56F5C9D34F32A4E1AF39 /* MarkdownFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Editing/MarkdownFormatter.swift"; sourceTree = "<group>"; };
+		CD5FFC9196D34E93A67CC7C5 /* PersianTextTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Editing/PersianTextTools.swift"; sourceTree = "<group>"; };
+		AEDAFF00EEB548A18A0D67DC /* FormattingSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Editing/FormattingSidebar.swift"; sourceTree = "<group>"; };
+		6007B2DCAA4B4F44BF42FFEC /* DocumentStarterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Editing/DocumentStarterView.swift"; sourceTree = "<group>"; };
+		7079E39FAC254C408CEA99E0 /* SourceSelectionResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Editing/SourceSelectionResolver.swift"; sourceTree = "<group>"; };
+		41D8077B64DC457AB23501CF /* RichDocumentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Models/Document/RichDocumentModel.swift"; sourceTree = "<group>"; };
+		2130C9C9F25E4ECA9AA34B27 /* MarkdownDocumentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Document/MarkdownDocumentParser.swift"; sourceTree = "<group>"; };
+		BC287979D5FD4C85B8A9C43F /* MarkdownDocumentSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Document/MarkdownDocumentSerializer.swift"; sourceTree = "<group>"; };
+		FBAD3BE846A54A14AFF09EF1 /* DocumentModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkViewTests/DocumentModelTests.swift"; sourceTree = "<group>"; };
+		FAA20D0D9FA34F309A9EF8FC /* DocumentOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Document/DocumentOperation.swift"; sourceTree = "<group>"; };
+		237DF903ED2E45C9A979067A /* RichTextDocumentBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Editing/Canvas/RichTextDocumentBridge.swift"; sourceTree = "<group>"; };
+		BDF07A629099499D8D918821 /* RichTextCanvasTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkViewTests/RichTextCanvasTests.swift"; sourceTree = "<group>"; };
+		61A676D2B73A451C973164AB /* RichTextCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Editing/Canvas/RichTextCanvas.swift"; sourceTree = "<group>"; };
+		B87D2CADF7414DF989643D43 /* DocumentTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Editing/Canvas/DocumentTableView.swift"; sourceTree = "<group>"; };
+		A596876543210FEDCBA98765 /* ChatHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/AI/ChatHistoryView.swift"; sourceTree = "<group>"; };
+		C3B4A596876543210FEDCBA9 /* ChatStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/ChatStorage.swift"; sourceTree = "<group>"; };
+		E1D2C3B4A596876543210FED /* DocumentTextExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/DocumentTextExtractor.swift"; sourceTree = "<group>"; };
+		F0E1D2C3B4A59687564534A2 /* SelectionToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Editing/Canvas/SelectionToolbar.swift"; sourceTree = "<group>"; };
+		A3C1AABC8A85451A85ACC7F2 /* TableSelectionBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Editing/Canvas/TableSelectionBridge.swift"; sourceTree = "<group>"; };
+		9134A9D21DB646C8ABCA6D29 /* AIDocumentOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/AI/AIDocumentOperations.swift"; sourceTree = "<group>"; };
+		5842D322DA5841EF94C0541C /* AIOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkViewTests/AIOperationTests.swift"; sourceTree = "<group>"; };
+		B4A596876543210FEDCBA987 /* ChatStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkViewTests/ChatStorageTests.swift"; sourceTree = "<group>"; };
+		D2C3B4A596876543210FEDCB /* DocumentTextExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkViewTests/DocumentTextExtractorTests.swift"; sourceTree = "<group>"; };
+		A50000000000000000000001 /* DocumentActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Services/Document/DocumentActions.swift"; sourceTree = SOURCE_ROOT; };
+		A50000000000000000000002 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkView/Views/Welcome/WelcomeView.swift"; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		708D0531E6624285914C0962 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		733428E74D78402CA2F50F7E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DAE8140AFF824081B565A58E = {
+			isa = PBXGroup;
+			children = (
+				37E165F2FFA54C42B501B16F /* MarkView */,
+				4A478B2316EB4D188C0F8301 /* MarkViewTests */,
+				7FD97C9B631244D7BA4C13E1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7FD97C9B631244D7BA4C13E1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8A95A40CF3E049BBB626214C /* Markowski.app */,
+				2958653C6989474A8DCE8799 /* MarkViewTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		37E165F2FFA54C42B501B16F /* MarkView */ = {
+			isa = PBXGroup;
+			children = (
+				A30000000000000000000001 /* OpenAICompatibleProvider.swift */,
+				A30000000000000000000002 /* AnthropicProvider.swift */,
+				11C686DC74EC4ADD8244E3FF /* App */,
+				0E3C6CC4B55E44B9A7FB0B65 /* Models */,
+				6671EB9330B94C3BB8855BD4 /* Services */,
+				F5DD6168979F4D84A10D5EA2 /* Views */,
+				C5A9888BC3BD4CB3BD9F3082 /* Commands */,
+				EF27E05C37EB4F87AB80CF71 /* Resources */,
+				99721EA2BB4549D180C6E306 /* Assets.xcassets */,
+				2F4B58685F3B4610A3309E82 /* Info.plist */,
+			);
+			path = MarkView;
+			sourceTree = "<group>";
+		};
+		11C686DC74EC4ADD8244E3FF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				917DE8024CDB4CFD99F9AF8A /* MarkViewApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		0E3C6CC4B55E44B9A7FB0B65 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B6727012FF5C433A8B6F4F4B /* DocumentModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6671EB9330B94C3BB8855BD4 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8B8714E64372490DB8869937 /* DocumentLoader.swift */,
+				C51FF71EA85947AEBA7EAD2B /* FileWatcher.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		F5DD6168979F4D84A10D5EA2 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				05E9C628498E4C8290A9A66E /* ContentView.swift */,
+				C19461CCE7B3470491F57665 /* DocumentView.swift */,
+				FF7DA0F215FB49A0AEF51A06 /* SourceView.swift */,
+				28E24B582FED41209DF433ED /* RendererWebView.swift */,
+				E4F4B38E4AD84062BF0C7BE3 /* InspectorView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C5A9888BC3BD4CB3BD9F3082 /* Commands */ = {
+			isa = PBXGroup;
+			children = (
+				617A30D0020F4B2DB2E557F9 /* AppCommands.swift */,
+			);
+			path = Commands;
+			sourceTree = "<group>";
+		};
+		EF27E05C37EB4F87AB80CF71 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000001 /* fonts */,
+				21B28742F6674DD7AC8B5657 /* renderer.html */,
+				533C69D102CB4F808DAF97A0 /* renderer.css */,
+				A887F295C0CC4670AFB3FC6C /* marked.min.js */,
+				2FE34AF2A414424C82AC4842 /* mermaid.min.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		4A478B2316EB4D188C0F8301 /* MarkViewTests */ = {
+			isa = PBXGroup;
+			children = (
+				4854A2B8F9B940D2ADB3B286 /* MarkViewTests.swift */,
+			);
+			path = MarkViewTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6F781ABD0ED546B3BB06C4F1 /* MarkView */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D54CC5E4339E451EBCE8E2CB /* Build configuration list for PBXNativeTarget "MarkView" */;
+			buildPhases = (
+				6550F26C18154424B27A309E /* Sources */,
+				708D0531E6624285914C0962 /* Frameworks */,
+				E73C2F19C1B943C5B90792DB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MarkView;
+			productName = MarkView;
+			productReference = 8A95A40CF3E049BBB626214C /* Markowski.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CBBD96AB6A6047868B6C4F4D /* MarkViewTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F0466FCFFAB74906AFD9F1B1 /* Build configuration list for PBXNativeTarget "MarkViewTests" */;
+			buildPhases = (
+				A58AE94780CF42648E228254 /* Sources */,
+				733428E74D78402CA2F50F7E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D663870F51D0468694AA85F1 /* PBXTargetDependency */,
+			);
+			name = MarkViewTests;
+			productName = MarkViewTests;
+			productReference = 2958653C6989474A8DCE8799 /* MarkViewTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		056CF82FE7414745A3BF85A3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					6F781ABD0ED546B3BB06C4F1 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					CBBD96AB6A6047868B6C4F4D = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 6F781ABD0ED546B3BB06C4F1;
+					};
+				};
+			};
+			buildConfigurationList = 0D67E8C0E6D3487ABCCBEA64 /* Build configuration list for PBXProject "MarkView" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DAE8140AFF824081B565A58E;
+			productRefGroup = 7FD97C9B631244D7BA4C13E1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6F781ABD0ED546B3BB06C4F1 /* MarkView */,
+				CBBD96AB6A6047868B6C4F4D /* MarkViewTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E73C2F19C1B943C5B90792DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B20000000000000000000001 /* fonts in Resources */,
+				F5935C28F5BE4AE8A97A29CA /* renderer.html in Resources */,
+				FA9342A0015F4E28A71D9479 /* renderer.css in Resources */,
+				F354A5875FB34B65B3DB462D /* marked.min.js in Resources */,
+				A2DE6D83AA3242D7B4037541 /* mermaid.min.js in Resources */,
+				A09441544142425AB9E06058 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6550F26C18154424B27A309E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B50000000000000000000002 /* WelcomeView.swift in Sources */,
+				B50000000000000000000001 /* DocumentActions.swift in Sources */,
+				B30000000000000000000001 /* OpenAICompatibleProvider.swift in Sources */,
+				B30000000000000000000002 /* AnthropicProvider.swift in Sources */,
+				CCB15202BA9C4DCE8B6BBD9A /* AIDocumentOperations.swift in Sources */,
+				8388FE905252445C92C8E318 /* TableSelectionBridge.swift in Sources */,
+				996EE90C5C92425EA98F9F27 /* DocumentTableView.swift in Sources */,
+				F60718293A4B5C6D7E8F9012 /* ChatHistoryView.swift in Sources */,
+				D4E5F60718293A4B5C6D7E8F /* ChatStorage.swift in Sources */,
+				B2C3D4E5F60718293A4B5C6D /* DocumentTextExtractor.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* SelectionToolbar.swift in Sources */,
+				06B79616E0C34AF1B7467FCB /* RichTextCanvas.swift in Sources */,
+				8AF24FBA6DBB4679861773B6 /* RichTextDocumentBridge.swift in Sources */,
+				593D0BE959D54885BBE54376 /* DocumentOperation.swift in Sources */,
+				9F7F660596A84D3A80742D57 /* MarkdownDocumentSerializer.swift in Sources */,
+				27C5181EE3E2426B9A4DCA17 /* MarkdownDocumentParser.swift in Sources */,
+				E71FA0AC0CF0497585156DA7 /* DocumentModel.swift in Sources */,
+				DF578782456E4F979B7BD818 /* SourceSelectionResolver.swift in Sources */,
+				C220684981B54C5990802B91 /* DocumentStarterView.swift in Sources */,
+				6C729E5728BA46D88AE09CF5 /* FormattingSidebar.swift in Sources */,
+				3E43D94E1267401B9B2AE30D /* PersianTextTools.swift in Sources */,
+				F0F2265E55E94B3086474B8A /* MarkdownFormatter.swift in Sources */,
+				92E1AF553C1349F685C11FC0 /* PromptAttachmentViews.swift in Sources */,
+				DA9A00AC8C3943D9BD4ED2FF /* PromptAttachments.swift in Sources */,
+				5338B723E3264F39B30A1AD6 /* MarkViewApp.swift in Sources */,
+				F5E44D2DAEA9412E88216989 /* DocumentModel.swift in Sources */,
+				E9AB6FAF359A4990A38B7B3F /* DocumentLoader.swift in Sources */,
+				9BFC951C31244928AF20E526 /* FileWatcher.swift in Sources */,
+				E7479E917A8942D0AB96F5E5 /* ContentView.swift in Sources */,
+				326ED6ECD89247CFA3D988D3 /* DocumentView.swift in Sources */,
+				A2A82527FD344F679057C537 /* SourceView.swift in Sources */,
+				3CA41A157278486CB0995DEA /* RendererWebView.swift in Sources */,
+				9CEF19E143324BFD83155CEB /* InspectorView.swift in Sources */,
+				DCAB01F5C19746E5B4D00895 /* AppCommands.swift in Sources */,
+				B10000000000000000000001 /* KeychainService.swift in Sources */,
+				B10000000000000000000002 /* AIModels.swift in Sources */,
+				B40000000000000000000001 /* AITokenUsage.swift in Sources */,
+				B10000000000000000000003 /* AIProvider.swift in Sources */,
+				B10000000000000000000004 /* GeminiProvider.swift in Sources */,
+				B10000000000000000000005 /* OpenAIProvider.swift in Sources */,
+				B10000000000000000000006 /* MockAIProvider.swift in Sources */,
+				B10000000000000000000007 /* DiffEngine.swift in Sources */,
+				B10000000000000000000008 /* DocumentSafetyService.swift in Sources */,
+				B10000000000000000000009 /* AIService.swift in Sources */,
+				B10000000000000000000010 /* AISettingsView.swift in Sources */,
+				B10000000000000000000011 /* DiffReviewSheet.swift in Sources */,
+				B10000000000000000000012 /* AIAssistantSidebar.swift in Sources */,
+				B10000000000000000000013 /* DocumentLocation.swift in Sources */,
+				B10000000000000000000014 /* DocumentIndex.swift in Sources */,
+				B10000000000000000000015 /* DocumentNavigator.swift in Sources */,
+				B10000000000000000000016 /* FindBarView.swift in Sources */,
+				B10000000000000000000017 /* StreamingTextView.swift in Sources */,
+				B10000000000000000000018 /* AIDiffView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A58AE94780CF42648E228254 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B46BFED79C9447F4B723072D /* DocumentModelTests.swift in Sources */,
+				5CEC660C5B5A47979C7F401E /* RichTextCanvasTests.swift in Sources */,
+				F6791F6E98C24CA0A678B093 /* AIOperationTests.swift in Sources */,
+				E5F60718293A4B5C6D7E8F90 /* ChatStorageTests.swift in Sources */,
+				C3D4E5F60718293A4B5C6D7E /* DocumentTextExtractorTests.swift in Sources */,
+				05FC63CFCA9F4CC79C228A17 /* MarkViewTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D663870F51D0468694AA85F1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6F781ABD0ED546B3BB06C4F1 /* MarkView */;
+			targetProxy = 1BE309CFC60E4461826A9271 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6925F11C934B431DB3E0C271 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMPOUND_LITERAL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B07D08B53435454390ACA02B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMPOUND_LITERAL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		93F248BC5DB4417DA82F3C47 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MarkView/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.app;
+				PRODUCT_MODULE_NAME = MarkView;
+				PRODUCT_NAME = Markowski;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		4E4004C4B75F42149F30590E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = MarkView/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.app;
+				PRODUCT_MODULE_NAME = MarkView;
+				PRODUCT_NAME = Markowski;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		917DA01F465846FC87C956D7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.app.MarkViewTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Markowski.app/Contents/MacOS/Markowski";
+			};
+			name = Debug;
+		};
+		C39B1B8DA861469B9AB75B9C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.markview.app.MarkViewTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Markowski.app/Contents/MacOS/Markowski";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0D67E8C0E6D3487ABCCBEA64 /* Build configuration list for PBXProject "MarkView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6925F11C934B431DB3E0C271 /* Debug */,
+				B07D08B53435454390ACA02B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D54CC5E4339E451EBCE8E2CB /* Build configuration list for PBXNativeTarget "MarkView" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93F248BC5DB4417DA82F3C47 /* Debug */,
+				4E4004C4B75F42149F30590E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F0466FCFFAB74906AFD9F1B1 /* Build configuration list for PBXNativeTarget "MarkViewTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				917DA01F465846FC87C956D7 /* Debug */,
+				C39B1B8DA861469B9AB75B9C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 056CF82FE7414745A3BF85A3 /* Project object */;
+}

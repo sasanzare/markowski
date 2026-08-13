@@ -1,0 +1,6 @@
+graph TD
+    Start([User opens file]) --> CheckExt{File Extension?}
+    CheckExt -->|.md / .markdown| ParseMD[Render GitHub Flavored Markdown]
+    CheckExt -->|.mmd| ParseMMD[Render Mermaid SVG Diagram]
+    ParseMD --> View[Display in Native macOS Window]
+    ParseMMD --> View

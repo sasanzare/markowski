@@ -1,0 +1,478 @@
+:root {
+  --bg-color: #f7f7f8;
+  --text-color: #2f3037;
+  --secondary-text: #6d6f78;
+  --heading-color: #1f2026;
+  --link-color: #076bd8;
+  --link-hover-color: #0056b3;
+  --code-bg: #ffffff;
+  --code-border: rgba(31, 32, 38, 0.12);
+  --code-text: #292c35;
+  --syntax-keyword: #9a2fa0;
+  --syntax-string: #b43b24;
+  --syntax-number: #2d63b5;
+  --syntax-type: #08798f;
+  --syntax-function: #1e7457;
+  --syntax-comment: #707783;
+  --syntax-operator: #805a10;
+  --blockquote-bg: rgba(0, 122, 255, 0.055);
+  --blockquote-border: #0a84ff;
+  --table-border: rgba(31, 32, 38, 0.12);
+  --table-header-bg: rgba(31, 32, 38, 0.045);
+  --table-alt-row: rgba(31, 32, 38, 0.025);
+  --hr-color: rgba(31, 32, 38, 0.13);
+  --error-bg: rgba(255, 235, 239, 0.62);
+  --error-border: rgba(218, 83, 105, 0.45);
+  --error-text: #a42e49;
+  --accent-color: #0a84ff;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1c1c1c;
+    --text-color: #e8e9ee;
+    --secondary-text: #a8abb5;
+    --heading-color: #f7f7fa;
+    --link-color: #64a8ff;
+    --link-hover-color: #8cc0ff;
+    --code-bg: #292b32;
+    --code-border: rgba(255, 255, 255, 0.12);
+    --code-text: #f0f1f5;
+    --syntax-keyword: #ff7ab2;
+    --syntax-string: #ff8170;
+    --syntax-number: #d6bf6a;
+    --syntax-type: #5dd8ff;
+    --syntax-function: #72d6ad;
+    --syntax-comment: #7f8b9b;
+    --syntax-operator: #f2c55c;
+    --blockquote-bg: rgba(10, 132, 255, 0.10);
+    --blockquote-border: #409cff;
+    --table-border: rgba(255, 255, 255, 0.12);
+    --table-header-bg: rgba(255, 255, 255, 0.065);
+    --table-alt-row: rgba(255, 255, 255, 0.025);
+    --hr-color: rgba(255, 255, 255, 0.13);
+    --error-bg: rgba(95, 27, 43, 0.55);
+    --error-border: rgba(255, 111, 133, 0.45);
+    --error-text: #ff9eae;
+    --accent-color: #409cff;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#content {
+  width: min(100%, 980px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 42px 52px;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-color);
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+  letter-spacing: -0.015em;
+}
+
+h1:first-child, h2:first-child, h3:first-child {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 2.1em;
+  font-weight: 700;
+  border-bottom: 1px solid var(--hr-color);
+  padding-bottom: 0.3em;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.6em;
+  border-bottom: 1px solid var(--hr-color);
+  padding-bottom: 0.2em;
+}
+
+h3 { font-size: 1.3em; }
+h4 { font-size: 1.1em; }
+h5 { font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary-text); }
+h6 { font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary-text); }
+
+/* Paragraphs & Text */
+p {
+  margin-bottom: 1.2em;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+strong {
+  font-weight: 600;
+  color: var(--heading-color);
+}
+
+em {
+  font-style: italic;
+}
+
+del {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Links */
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  border-bottom-color: var(--link-hover-color);
+}
+
+/* Lists */
+ul, ol {
+  margin-bottom: 1.2em;
+  padding-left: 1.8em;
+}
+
+li {
+  margin-bottom: 0.4em;
+}
+
+li > ul, li > ol {
+  margin-top: 0.4em;
+  margin-bottom: 0;
+}
+
+/* Task lists */
+ul.contains-task-list {
+  list-style-type: none;
+  padding-left: 0.2em;
+}
+
+li.task-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+li.task-list-item input[type="checkbox"] {
+  margin-top: 4px;
+  accent-color: var(--accent-color);
+}
+
+/* Blockquotes */
+blockquote {
+  margin: 1.4em 0;
+  padding: 0.8em 1.2em;
+  background-color: var(--blockquote-bg);
+  border-left: 4px solid var(--blockquote-border);
+  border-radius: 0 12px 12px 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  color: var(--text-color);
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Code & Code blocks */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background-color: var(--code-bg);
+  color: var(--code-text);
+  padding: 0.2em 0.45em;
+  border-radius: 6px;
+  border: 1px solid var(--code-border);
+}
+
+pre {
+  position: relative;
+  margin: 1.4em 0;
+  background-color: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 14px;
+  padding: 1.1em 1.3em;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 0 8px 22px rgba(58, 43, 106, 0.08);
+}
+
+pre[data-language] {
+  padding-top: 2.25em;
+}
+
+pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.7em;
+  left: 1.5em;
+  color: var(--syntax-comment);
+  font: 600 0.67em/1 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+  border: none;
+  font-size: 0.9em;
+  line-height: 1.5;
+  display: block;
+  white-space: pre;
+}
+
+.syntax-keyword { color: var(--syntax-keyword); font-weight: 600; }
+.syntax-string { color: var(--syntax-string); }
+.syntax-number { color: var(--syntax-number); }
+.syntax-type { color: var(--syntax-type); }
+.syntax-function { color: var(--syntax-function); }
+.syntax-comment { color: var(--syntax-comment); font-style: italic; }
+.syntax-operator { color: var(--syntax-operator); }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.4em 0;
+  font-size: 0.95em;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--table-border);
+  background: var(--code-bg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.055);
+}
+
+th, td {
+  padding: 0.7em 1em;
+  text-align: left;
+  border-bottom: 1px solid var(--table-border);
+  border-right: 1px solid var(--table-border);
+}
+
+th:last-child, td:last-child {
+  border-right: none;
+}
+
+/* A cell that states its own alignment means it. The blanket `text-align: left`
+   above is a stylesheet rule, and a stylesheet rule outranks the presentational
+   `align` attribute — so without these a per-cell alignment was written to the
+   file, read back correctly, and then silently ignored on screen. */
+th[align="left"],   td[align="left"]   { text-align: left; }
+th[align="center"], td[align="center"] { text-align: center; }
+th[align="right"],  td[align="right"]  { text-align: right; }
+
+th[valign="top"],    td[valign="top"]    { vertical-align: top; }
+th[valign="middle"], td[valign="middle"] { vertical-align: middle; }
+th[valign="bottom"], td[valign="bottom"] { vertical-align: bottom; }
+
+th {
+  background-color: var(--table-header-bg);
+  font-weight: 600;
+  color: var(--heading-color);
+}
+
+tr:nth-child(even) {
+  background-color: var(--table-alt-row);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Horizontal Rule */
+hr {
+  height: 1px;
+  border: none;
+  background-color: var(--hr-color);
+  margin: 2em 0;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 14px;
+  margin: 1em 0;
+  display: block;
+  border: 1px solid var(--code-border);
+  box-shadow: 0 10px 24px rgba(58, 43, 106, 0.12);
+}
+
+/* Mermaid Container */
+.mermaid-wrapper {
+  position: relative;
+  margin: 1.8em 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  padding: 1em;
+  background-color: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(58, 43, 106, 0.06);
+}
+
+/* An image whose file is genuinely missing should say so rather than leave a
+   silent gap the reader has to guess about. */
+img.mv-missing-image {
+  min-width: 120px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px dashed var(--code-border);
+  border-radius: 8px;
+  background: var(--code-bg);
+}
+
+/* Diagram export controls — a rendered diagram is a picture, and a picture
+   people cannot take out of the app is a dead end. */
+.mv-diagram-tools {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.mermaid-wrapper:hover .mv-diagram-tools,
+.mv-diagram-tools:focus-within {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.mv-diagram-tools button {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--code-border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.mv-diagram-tools button:hover {
+  background: var(--code-bg);
+  border-color: var(--accent, #8b5cf6);
+}
+
+.mv-diagram-tools button:active {
+  transform: scale(0.96);
+}
+
+.mv-diagram-tools button.confirmed {
+  color: #ffffff;
+  background: #34a853;
+  border-color: #34a853;
+}
+
+.mermaid {
+  text-align: center;
+}
+
+.mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Error State */
+.render-error {
+  margin: 2em 0;
+  padding: 1.5em;
+  background-color: var(--error-bg);
+  border: 1px solid var(--error-border);
+  border-radius: 14px;
+  color: var(--error-text);
+}
+
+.render-error h3 {
+  color: var(--error-text);
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.render-error p {
+  margin-bottom: 1em;
+  font-size: 0.95em;
+}
+
+.render-error pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--error-text);
+  font-size: 0.85em;
+  padding: 0.8em;
+  margin-bottom: 1em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.view-source-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #7563d6, #5542b6);
+  color: #ffffff !important;
+  padding: 0.5em 1em;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.9em;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  box-shadow: 0 6px 14px rgba(74, 56, 155, 0.20);
+}
+
+.view-source-btn:hover {
+  opacity: 0.9;
+  border: none;
+}

@@ -1,0 +1,34 @@
+# Build output
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Release artefacts are attached to GitHub Releases, not committed —
+# an 11 MB binary per beta would bloat the history permanently.
+dist/
+
+# Coverage / profiling
+*.profraw
+*.profdata
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Agent scratch space
+scratch/
+.claude/

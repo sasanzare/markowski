@@ -1,0 +1,12 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant Finder
+    participant MarkView
+    participant WebView
+
+    User->>Finder: Double clicks README.md
+    Finder->>MarkView: Open URL event
+    MarkView->>MarkView: Load file content & watch disk
+    MarkView->>WebView: Evaluate renderDocument(...)
+    WebView-->>User: Rendered HTML & Diagrams
