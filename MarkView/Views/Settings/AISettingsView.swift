@@ -331,8 +331,12 @@ struct AISettingsView: View {
         let progress = policy.tokenLimit.map { min(1, Double(usage.totalTokens) / Double(max(1, $0))) } ?? 0
 
         return VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .center, spacing: 18) {
-                VStack(alignment: .leading, spacing: 5) {
+            // Top-aligned: these columns hold different numbers of rows — the
+            // schedule carries a caption the limit doesn't — so centring them
+            // put their headings at different heights and the row read as
+            // misaligned.
+            HStack(alignment: .top, spacing: 20) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Token limit")
                         .font(.system(size: 11.5, weight: .semibold))
                     HStack(spacing: 7) {
@@ -380,14 +384,19 @@ struct AISettingsView: View {
                     .labelsHidden()
                     .pickerStyle(.segmented)
                     .frame(width: 188)
+
+                    // Tied to the control's width and allowed to wrap. At
+                    // `lineLimit(1)` this caption ran wider than the segmented
+                    // control above it and pushed the column out of line.
                     Text(tokenUsage.policy(for: model).resetPeriod.detail)
                         .font(.system(size: 9.5))
                         .foregroundStyle(.tertiary)
-                        .lineLimit(1)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(width: 188, alignment: .leading)
                 }
 
                 if AIModelCatalog.supportsReasoningEffort(model) {
-                    VStack(alignment: .leading, spacing: 5) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Reasoning effort")
                             .font(.system(size: 11.5, weight: .semibold))
                         effortControl(model)
