@@ -93,3 +93,15 @@ h1 em,h2 em{font-style:normal;color:var(--orange)}
 @media(max-width:480px){
   .provider-mascot{height:60%;bottom:30px}
 }
+
+@media(max-width:760px){
+  .hero-actions{width:100%;gap:8px;flex-wrap:nowrap}
+  .hero-actions .button{flex:1 1 0;min-width:0;padding:14px 10px;gap:8px;font-size:12px;white-space:nowrap}
+  .hero-actions .github-mark{width:17px;height:17px}
+}
+
+@media(max-width:360px){
+  .hero-actions{gap:6px}
+  .hero-actions .button{padding-inline:8px;gap:6px;font-size:11px}
+  .hero-actions .external-mark{display:none}
+}
