@@ -1,5 +1,15 @@
 # Directory Update Log
 
+## 2026-08-14
+* **Updated**: Reorganized each model's token-policy editor into a clear primary controls row and a dedicated full-width Reset schedule bar. Manual/Daily behavior now has an icon and inline explanation, while Reset now sits beside the schedule and disables when there is no usage to clear.
+* **Updated**: Reframed the Markowski app icon from the supplied master artwork with a subtle scale increase and lower optical placement, reducing the empty lower inset inside the macOS icon mask while preserving the full face and silhouette.
+* **Updated**: Increased the app-icon character scale once more and lowered its optical placement further, filling the macOS mask's lower inset more decisively while keeping the face legible at small sizes.
+* **Fixed**: Rebuilt the app icon from an alpha-bounded, bottom-anchored master instead of repeatedly cropping the full transparent source canvas. The character now reaches the lower macOS icon mask consistently at every exported size, eliminating the persistent empty footer.
+* **Fixed**: Reverted the over-zoomed icon composition that clipped the upper quills. The final master uses the original balanced scale, shifts the character downward, preserves a safe top margin, and keeps the hoodie anchored to the bottom edge.
+* **Updated**: Lowered the balanced app-icon artwork further without changing its scale, increasing the top breathing room and moving the character's optical center down within the macOS squircle.
+* **Fixed**: Recreated both light and dark app-icon appearances directly from the supplied square master with resize only—no crop, zoom, or translation—so the hoodie’s complete white M remains inside every exported icon. Appearance-specific assets now explicitly share this composition.
+* **Fixed**: Restored navigation from AI reference cards to rendered sections. Preview citations now fall back from an invisible rendered-source quote to the visible heading and resolved block, so Mermaid references such as `sequenceDiagram` still jump to their section.
+
 ## 2026-08-13
 * **Fixed**: Made empty documents a first-class AI edit target. The prompt now explicitly requires a top-level `insertBlock` instead of refusing or asking for starter text, multi-block Markdown insertions preserve every block in source order, and guarded `createDocument`/`setDocument` aliases work only when the file is empty. Added regression coverage for creating a heading, Mermaid diagram, and Python code block in one operation.
 * **Updated**: Replaced the welcome panel's compact assistant mascot with the supplied waving Markowski artwork and centered it within the brand column.

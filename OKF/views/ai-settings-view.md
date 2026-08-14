@@ -26,6 +26,13 @@ survive refreshes. Audio, speech,
 image-generation, embedding, moderation, realtime, and related utility models
 are filtered before this list is shown.
 
+Each model row can expand into a compact policy editor. Token limit and
+reasoning effort occupy the primary control row; reset behavior is separated
+into its own full-width schedule bar with an icon, explanatory status,
+Manual/Daily segmented control, and a contextual Reset now action. This keeps
+the controls aligned at different Settings window widths and makes the reset
+semantics visible without mixing them into the numeric limit field.
+
 API keys are written through
 [KeychainService](../components/keychain-service.md) — never into
 `UserDefaults` in plaintext, and never into the document. Each provider can

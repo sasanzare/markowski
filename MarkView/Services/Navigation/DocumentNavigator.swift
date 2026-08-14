@@ -38,6 +38,21 @@ final class PreviewBridge {
         evaluate("findText(\(json(query)));" )
     }
 
+    /// Tries semantic candidates in order and stops at the first visible hit.
+    /// This matters for rendered-only content such as Mermaid: the reference
+    /// may quote `sequenceDiagram`, but that source token disappears when the
+    /// diagram becomes SVG, while its surrounding heading remains visible.
+    func findFirst(_ queries: [String]) {
+        let unique = queries.reduce(into: [String]()) { result, query in
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, !result.contains(trimmed) else { return }
+            result.append(trimmed)
+        }
+        guard !unique.isEmpty else { return }
+        let attempts = unique.map { "findText(\(json($0)))" }.joined(separator: " || ")
+        evaluate("\(attempts);")
+    }
+
     private func evaluate(_ script: String) {
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
@@ -98,16 +113,13 @@ final class DocumentNavigator: ObservableObject {
             // `DocumentIndex` numbers them over source paragraphs, so the two
             // ID spaces disagree. Locate by text, which is stable across both,
             // and only use an ID the renderer itself produced.
-            if let quote = location.quote, !quote.isEmpty {
-                previewBridge.find(quote)
-            } else if let heading = location.heading, !heading.isEmpty {
-                previewBridge.find(heading)
+            let candidates = [location.quote, location.heading, block?.contentText]
+                .compactMap { $0 }
+                .flatMap { DocumentIndex.quoteCandidates(for: $0) }
+            if !candidates.isEmpty {
+                previewBridge.findFirst(candidates)
             } else if let blockID = location.blockId {
                 previewBridge.scrollToBlock(blockID, reduceMotion: reduceMotion)
-            } else if let firstLine = block?.contentText
-                .components(separatedBy: .newlines)
-                .first(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty }) {
-                previewBridge.find(firstLine.trimmingCharacters(in: .whitespaces))
             }
 
         case .editor:

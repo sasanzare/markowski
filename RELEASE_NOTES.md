@@ -1,42 +1,31 @@
-# Markowski 1.0 Beta
+# Markowski 1.0 Beta 1
 
-First public build. Free, native macOS, no account.
+The first downloadable beta of Markowski: a native macOS workspace for reading, visually editing, and improving ordinary Markdown files.
 
-## What's in it
+## Highlights
 
-**A document editor, not a syntax editor.** Type `- `, `# `, `> `, `1. ` and the
-markers disappear into real structure. ⌘B / ⌘I / ⌘K work as expected. Saves as
-ordinary Markdown that any other tool can read.
-
-**Tables that behave like tables.** Drag column borders to resize. Merge cells
-across rows and columns. Align per cell, horizontally and vertically. Arrow keys
-move between rows; Tab past the last cell grows the table. A plain table stays
-plain Markdown — only one using merges or per-cell alignment becomes HTML, so
-nothing is silently lost on save.
-
-**A selection toolbar.** Select text, get block style, bold, italic, code,
-highlight, link, and "Ask" without leaving the text.
-
-**Diagram export.** Mermaid diagrams render inline and export as Copy / PNG /
-SVG at 2×, matching what's on screen exactly.
-
-**Persian and RTL tooling.** Scans the document, reports what is actually wrong
-(Arabic letters, missing نیم‌فاصله, punctuation) with counts and worked
-examples, and leaves code blocks and English punctuation alone.
-
-**An assistant with context.** Attach PDFs, Word, Excel, and source files —
-text is extracted locally and shown to you before it is sent. Chats are saved
-and fully deletable, with a storage panel that reclaims attachment space.
-
-## Known limitations
-
-- Not notarised by Apple. First launch: right-click → Open.
-- The assistant needs your own API key (Gemini, OpenAI, or Anthropic).
-- No collaborative editing or plugin API yet.
+- Preview, visual Editor, and editable Source modes for the same portable file.
+- Native formatting for headings, lists, task lists, blockquotes, links, images, and advanced tables.
+- Local Mermaid rendering and modern syntax-highlighted code blocks.
+- Persian-first typography with IRANSansX and stable mixed RTL/LTR layout.
+- Agentic document edits with clear Applied state, Undo, and Revert.
+- Smart answer citations that navigate to the relevant document section.
+- Gemini, OpenAI, Anthropic, OpenRouter, Mistral, Groq, xAI, and DeepSeek support.
+- Searchable model selection, per-model token usage, editable limits, reset schedules, and supported reasoning effort controls.
+- API keys stored in macOS Keychain; document content is sent only when you explicitly submit a prompt.
 
 ## Install
 
-1. Open the DMG, drag Markowski to Applications.
-2. Right-click Markowski → Open → Open (first launch only).
+1. Download `Markowski-1.0.0-beta.1.dmg`.
+2. Open it and drag Markowski to Applications.
+3. On first launch, right-click Markowski and choose Open.
 
-Requires macOS 14 or later.
+## Requirements
+
+- macOS 14 Sonoma or later.
+- Apple Silicon or Intel Mac.
+- Your own provider API key is required only for AI features.
+
+## Beta note
+
+This build is ad-hoc signed and is not yet notarized by Apple. macOS may ask you to confirm the first launch.

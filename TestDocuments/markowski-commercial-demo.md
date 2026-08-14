@@ -5,7 +5,7 @@
 ## Launch snapshot
 
 | Workstream | Owner | Status | Confidence |
-|:--|:--|:--:|--:|
+| :--- | :--- | :---: | ---: |
 | macOS beta | Product | ✅ Ready | 96% |
 | AI providers | Platform | ✅ Connected | 92% |
 | Windows edition | Engineering | 🟡 Coming soon | 68% |
@@ -13,7 +13,7 @@
 
 ## Why Markowski
 
-Markowski turns ordinary Markdown into a calm, visual document without locking your work into a proprietary format. The same file can be **read beautifully**, edited directly, inspected as source, or improved with your preferred AI provider.
+Markowski transforms standard Markdown into an elegant, distraction-free document experience—without vendor lock-in. Work seamlessly within a single file: **read beautifully**, edit visually, inspect precise source text, or refine content with your AI provider of choice.
 
 ### Everything stays in flow
 
@@ -40,6 +40,11 @@ flowchart LR
     G --> H[Save locally]
 ```
 
+```swift
+let document = try MarkdownDocument(contentsOf: fileURL)
+let preview = document.renderPreview()
+```
+
 ## A developer-friendly core
 
 ```swift
@@ -52,8 +57,7 @@ struct LaunchStatus: Codable {
 let macOS = LaunchStatus(platform: "macOS", progress: 0.96, isReady: true)
 ```
 
-- 
-
+-
 
 ## Built for multilingual teams
 

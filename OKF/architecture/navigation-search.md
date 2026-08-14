@@ -43,6 +43,10 @@ lines directly with `enumerateSubstrings(options: .byLines)`.
 (Markdown syntax stripped, first line only, a shortened prefix, the first
 few words) because it is matching a quote against *rendered* text; the
 exact string often isn't present even when the reference is right.
+Preview navigation also tries the reference quote, heading, and resolved block
+in sequence rather than treating the first field as authoritative. This is
+required for Mermaid references: source tokens such as `sequenceDiagram`
+disappear after SVG rendering, but the section heading remains searchable.
 
 # Search
 

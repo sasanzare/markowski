@@ -25,9 +25,10 @@ renderer page described in
 - `updateDocumentText(_:)`: rebuilds the index and, if a search is
   active, re-runs it — called on every document text change.
 - `navigateToLocation(_:text:viewMode:reduceMotion:)`: resolves the
-  location via the index, then either tells the preview to find a quote
-  or scroll to a block id, or scrolls the source `NSTextView` to the
-  resolved line.
+  location via the index, then tells the preview to try the quote, heading,
+  and resolved block until one is visibly found, or scrolls the source
+  `NSTextView` to the resolved line. The candidate fallback keeps Mermaid
+  citations navigable after their source has rendered into SVG.
 - `performSearch(query:in:)`: builds an escaped, case-insensitive
   `NSRegularExpression` (so search is literal-substring, not
   regex-as-typed), producing `SearchMatch` values with line number and

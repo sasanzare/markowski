@@ -3,44 +3,173 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Markowski is a native macOS Markdown workspace where the document is the editor." />
-  <title>Markowski — Markdown, without the Markdown.</title>
+  <meta name="theme-color" content="#f7f4ef" />
+  <meta name="description" content="Markowski is a native macOS workspace for reading, editing, and improving Markdown with the AI provider you choose." />
+  <meta property="og:title" content="Markowski — Markdown that feels like a document" />
+  <meta property="og:description" content="Read beautifully. Edit directly. Ask your preferred AI. Keep the Markdown." />
+  <meta property="og:image" content="assets/art/markowski-studio.png" />
+  <title>Markowski — Markdown that feels like a document</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
-  <nav class="nav shell">
-    <a class="brand" href="#top"><span class="brand-mark">M</span><span>Markowski</span></a>
-    <div class="nav-links"><a href="#features">Features</a><a href="#screens">Inside Markowski</a><a href="#privacy">Privacy</a></div>
-    <a class="nav-cta" href="https://github.com/smSamani/markowski">View on GitHub <span>↗</span></a>
-  </nav>
+  <header class="site-header">
+    <nav class="nav shell" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="Markowski home">
+        <img src="assets/markowski-logo.png" alt="" />
+        <span>Markowski</span>
+      </a>
+      <div class="nav-links">
+        <a href="#workspace">Workspace</a>
+        <a href="#assistant">AI assistant</a>
+        <a href="#providers">Providers</a>
+        <a href="#control">Control</a>
+      </div>
+      <a class="nav-cta" href="#download">Get Markowski <span aria-hidden="true">↘</span></a>
+    </nav>
+  </header>
 
   <main id="top">
     <section class="hero shell">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="spark">✦</span> A calmer way to write Markdown</div>
-        <h1>Markdown,<br /><em>without</em> the Markdown.</h1>
-        <p class="hero-lede">A native macOS workspace where your document is the editor, your files stay yours, and Markowski helps when you need it.</p>
-        <div class="hero-actions"><a class="button primary" href="#download">Download the beta <span>↓</span></a><a class="text-link" href="https://github.com/smSamani/markowski">Explore the source <span>↗</span></a></div>
-        <div class="proof"><span class="proof-dot"></span><strong>Private by default</strong><span>·</span><span>macOS 14+</span><span>·</span><span>Apple Silicon & Intel</span></div>
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span></span> Native Markdown for macOS</div>
+        <h1>Your Markdown.<br /><em>Finally human.</em></h1>
+        <p>Read it like a document. Edit it without wrestling syntax. Ask your preferred AI to find, explain, or carefully improve what is already there.</p>
+        <div class="hero-actions">
+          <a class="button button-dark" href="#workspace">See it in action <span>↓</span></a>
+          <a class="button button-quiet" href="https://github.com/smSamani/markowski">View on GitHub <span>↗</span></a>
+        </div>
+        <div class="hero-meta">
+          <span><i class="status-dot"></i> macOS beta</span>
+          <span>Local Markdown files</span>
+          <span>Your API keys</span>
+        </div>
       </div>
-      <div class="hero-window glass-window">
-        <div class="window-top"><div class="traffic"><i></i><i></i><i></i></div><span class="window-title">full-markdown.md</span><div class="window-tools">⌕ &nbsp; 100% &nbsp; ⟳</div></div>
-        <div class="window-body"><div class="doc-pane"><div class="doc-kicker">MARKOWSKI</div><h2>Write like a human.</h2><div class="rule"></div><p>This document is the workspace. Formatting is visible, content is calm, and Markdown stays in the file.</p><h3>Ideas, rendered.</h3><ul><li>Native document editing</li><li>Beautiful tables and diagrams</li><li>Persian and RTL support</li></ul></div><div class="assistant-pane"><div class="assistant-head"><span class="spark">✦</span><strong>Markowski</strong><span class="gear">⌘</span></div><div class="assistant-content"><div class="assistant-orb">✦</div><strong>Ask Markowski</strong><span>Understand, rewrite, find,<br />or update anything in this file.</span><div class="mini-actions"><span>Summarize</span><span>Improve writing</span><span>Find section</span><span>Create diagram</span></div></div><div class="prompt">Ask me anything…<div><b>Gemini Flash Lite</b><span>⌁ Attach</span><span>↑</span></div></div></div></div>
+
+      <div class="hero-art reveal">
+        <div class="hero-glow"></div>
+        <img class="hero-mascot" src="assets/markowski.png" alt="Markowski, the app's hedgehog assistant" />
+        <div class="floating-card card-document">
+          <span class="card-label">DOCUMENT</span>
+          <strong>Write once.</strong>
+          <p>Preview, edit, and inspect the same portable file.</p>
+          <div class="fake-lines"><i></i><i></i><i></i></div>
+        </div>
+        <div class="floating-card card-agent">
+          <span class="agent-spark">✦</span>
+          <div><span class="card-label">MARKOWSKI</span><strong>Edit ready to review</strong></div>
+          <span class="agent-check">✓</span>
+        </div>
+        <div class="floating-pill">Preview&nbsp;&nbsp; Editor&nbsp;&nbsp; Source</div>
       </div>
     </section>
 
-    <section class="statement shell"><div class="section-label">01 / THE IDEA</div><div><h2>Stop editing punctuation.<br /><span>Start editing your document.</span></h2><p>Markowski turns Markdown into a real, readable document while preserving the plain-text file underneath. You get the focus of a writing app and the portability of Markdown.</p></div></section>
+    <section class="logo-strip shell reveal" aria-label="Highlights">
+      <span>Native macOS</span><i></i><span>Real Markdown</span><i></i><span>Agentic edits</span><i></i><span>Persian + RTL</span><i></i><span>Mermaid diagrams</span>
+    </section>
 
-    <section id="features" class="features shell"><div class="section-label">02 / WHAT IT DOES</div><div class="feature-grid"><article><span class="feature-icon blue">✦</span><h3>Rich editing, clean files</h3><p>Headings, lists, links, code, and tables behave like document content—not syntax you have to stare at.</p></article><article><span class="feature-icon orange">⌘</span><h3>Tables that hold up</h3><p>Resize columns, merge cells, move through rows, and keep the Markdown round trip safe.</p></article><article><span class="feature-icon violet">◌</span><h3>AI in the document</h3><p>Ask about a selection or the whole file. Markowski can summarize, rewrite, search, and apply careful edits.</p></article></div></section>
+    <section id="workspace" class="product-stage shell">
+      <div class="section-heading centered reveal">
+        <div class="eyebrow"><span></span> The complete workspace</div>
+        <h2>Everything you need.<br /><em>Nothing between you and the document.</em></h2>
+        <p>Format visually, work in raw Markdown, and keep Markowski beside the document when you want a second pair of eyes.</p>
+      </div>
+      <figure class="app-frame reveal">
+        <div class="frame-toolbar"><span class="traffic"><i></i><i></i><i></i></span><b>Markowski</b><span class="frame-mode">Preview&nbsp;&nbsp;·&nbsp;&nbsp;Editor&nbsp;&nbsp;·&nbsp;&nbsp;Source</span></div>
+        <img src="assets/screens/workspace.png" alt="Markowski workspace with visual formatting, document preview, and AI assistant" />
+      </figure>
+      <div class="feature-row reveal">
+        <article><span class="number">01</span><h3>Read beautifully</h3><p>Typography, tables, task lists, code blocks, and Mermaid diagrams render as a calm native document.</p></article>
+        <article><span class="number">02</span><h3>Edit your way</h3><p>Move between Preview, visual Editor, and Source without leaving your portable Markdown file behind.</p></article>
+        <article><span class="number">03</span><h3>Write in any direction</h3><p>Persian typography and mixed RTL/LTR content stay readable, aligned, and under your control.</p></article>
+      </div>
+    </section>
 
-    <section id="screens" class="showcase shell"><div class="section-label">03 / INSIDE MARKOWSKI</div><div class="showcase-copy"><h2>Three views.<br /><span>One source of truth.</span></h2><p>Preview, Editor, and Source are different ways to see the same file. Switch whenever the work calls for it.</p></div><div class="screen-card"><img src="../docs/screenshots/preview.png" alt="Markowski preview with assistant sidebar" /><div class="screen-caption"><strong>Preview mode</strong><span>Rendered document, ready to read.</span></div></div></section>
+    <section id="assistant" class="assistant-section">
+      <div class="shell">
+        <div class="split-heading reveal">
+          <div><div class="eyebrow light"><span></span> A careful document agent</div><h2>Ask. Review.<br /><em>Apply with confidence.</em></h2></div>
+          <p>Markowski understands the document around your prompt. It can propose a focused change, show exactly what will happen, then apply it directly—with Undo and Revert close by.</p>
+        </div>
 
-    <section id="privacy" class="privacy shell"><div class="privacy-card"><div class="section-label">04 / YOUR FILES</div><div><h2>Quietly powerful.<br /><span>Private by default.</span></h2><p>Your documents remain on your Mac. AI requests happen only when you send a prompt, to the provider you choose. No account. No telemetry. No surprise sync.</p><div class="privacy-pills"><span>⌂ Local-first</span><span>◉ Keychain storage</span><span>↗ Your API key</span></div></div></div></section>
+        <div class="story-grid">
+          <article class="story-card story-wide reveal">
+            <div class="story-copy"><span class="story-index">01 / AGENTIC EDITING</span><h3>Changes you can see before they land.</h3><p>Review a precise proposal instead of trusting an invisible rewrite. Keep the original meaning, inspect the scope, and decide when it is ready.</p><div class="micro-pills"><span>Review changes</span><span>Apply</span><span>Undo</span><span>Revert</span></div></div>
+            <img src="assets/screens/agent-review-light.png" alt="Markowski showing proposed AI document changes ready for review" />
+          </article>
 
-    <section id="download" class="download shell"><div class="download-inner"><div class="eyebrow"><span class="spark">✦</span> The beta is ready</div><h2>Make room for<br /><em>the work.</em></h2><p>Open a Markdown file and let the punctuation disappear.</p><div class="hero-actions"><a class="button primary" href="https://github.com/smSamani/markowski/releases">Download Markowski <span>↓</span></a><a class="text-link light" href="https://github.com/smSamani/markowski">GitHub repository <span>↗</span></a></div></div></section>
+          <article class="story-card reveal">
+            <div class="story-copy"><span class="story-index">02 / SMART NAVIGATION</span><h3>Find the idea, not just the word.</h3><p>Ask for a section in natural language and jump straight to the matching place in the document.</p></div>
+            <img src="assets/screens/smart-navigation.png" alt="Markowski finding and highlighting a Mermaid diagram section" />
+          </article>
+
+          <article class="story-card dark-card reveal">
+            <div class="story-copy"><span class="story-index">03 / CODE + DIAGRAMS</span><h3>Technical content stays first-class.</h3><p>Syntax-highlighted code and local Mermaid diagrams look at home in both light and dark mode.</p></div>
+            <img src="assets/screens/agent-applied-dark.png" alt="Markowski dark mode with syntax-highlighted Swift code and applied AI edits" />
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="providers" class="providers shell">
+      <div class="provider-copy reveal">
+        <div class="eyebrow"><span></span> Bring your preferred AI</div>
+        <h2>One workspace.<br /><em>Your models.</em></h2>
+        <p>Connect only the providers you use. Markowski shows models from active API keys, keeps credentials in macOS Keychain, and lets you choose what appears in the prompt box.</p>
+        <div class="provider-logos" aria-label="Supported AI providers">
+          <span><img src="assets/providers/gemini.png" alt="Google Gemini" />Gemini</span>
+          <span><img src="assets/providers/openai.svg" alt="OpenAI" />OpenAI</span>
+          <span><img src="assets/providers/anthropic.svg" alt="Anthropic" />Anthropic</span>
+          <span><img src="assets/providers/openrouter.svg" alt="OpenRouter" />OpenRouter</span>
+          <span><img src="assets/providers/mistral.svg" alt="Mistral AI" />Mistral</span>
+          <span><img src="assets/providers/groq.svg" alt="Groq" />Groq</span>
+          <span><img src="assets/providers/xai.svg" alt="xAI" />xAI</span>
+          <span><img src="assets/providers/deepseek.svg" alt="DeepSeek" />DeepSeek</span>
+        </div>
+      </div>
+      <div class="provider-visual reveal">
+        <img src="assets/art/provider-network.png" alt="Markowski connecting one document to multiple AI providers" />
+        <div class="art-caption"><span>Provider-flexible by design</span><span>8 integrations</span></div>
+      </div>
+    </section>
+
+    <section id="control" class="control-section">
+      <div class="shell control-grid">
+        <div class="control-visual reveal"><img src="assets/screens/model-controls.png" alt="Markowski model controls with model selection, token limit, and daily reset schedule" /></div>
+        <div class="control-copy reveal">
+          <div class="eyebrow"><span></span> Clear usage controls</div>
+          <h2>Know what you use.<br /><em>Set your own limits.</em></h2>
+          <p>Choose the models that appear in the composer, see token usage, and set a per-model limit with a manual or daily reset schedule.</p>
+          <ul class="check-list">
+            <li><span>✓</span> API keys stored in macOS Keychain</li>
+            <li><span>✓</span> Per-model token counters</li>
+            <li><span>✓</span> Editable limits and reset schedules</li>
+            <li><span>✓</span> Requests sent only when you press Send</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="privacy shell reveal">
+      <div class="privacy-copy"><span class="privacy-icon">⌁</span><div><span class="story-index">LOCAL-FIRST BY DEFAULT</span><h2>Your files stay files.</h2><p>Open a Markdown document from your Mac, save it where you choose, and keep using it anywhere. Markowski never turns your writing into a proprietary workspace.</p></div></div>
+      <div class="privacy-stats"><span><strong>0</strong> accounts required</span><span><strong>1</strong> portable source file</span><span><strong>You</strong> choose the AI</span></div>
+    </section>
+
+    <section id="download" class="download shell reveal">
+      <div class="download-art"><img src="assets/art/markowski-studio.png" alt="Markowski presenting a glass document workspace" /></div>
+      <div class="download-copy">
+        <div class="eyebrow light"><span></span> Markowski for macOS</div>
+        <h2>Make Markdown<br /><em>feel finished.</em></h2>
+        <p>The first macOS beta is ready to try. Install it with a familiar drag-to-Applications DMG. A Windows edition is already on the roadmap.</p>
+        <div class="hero-actions"><a class="button button-light" href="https://github.com/smSamani/markowski-site/releases/download/v1.0.0-beta.1/Markowski-1.0.0-beta.1.dmg">Download macOS Beta <span>↓</span></a><span class="coming-soon">Windows · Coming soon</span></div>
+      </div>
+    </section>
   </main>
-  <footer class="footer shell"><span>© 2026 Markowski</span><span>Made for people who write a lot of Markdown.</span><a href="https://github.com/smSamani/markowski">GitHub ↗</a></footer>
+
+  <footer class="footer shell">
+    <a class="brand" href="#top"><img src="assets/markowski.png" alt="" /><span>Markowski</span></a>
+    <p>Markdown that feels like a document.</p>
+    <div><span>© 2026</span><a href="https://github.com/smSamani/markowski">GitHub ↗</a></div>
+  </footer>
   <script src="script.js"></script>
 </body>
 </html>

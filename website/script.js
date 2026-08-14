@@ -1,10 +1,16 @@
-const reveal = new IntersectionObserver((entries) => entries.forEach((entry) => {
-  if (entry.isIntersecting) entry.target.classList.add('visible');
-}), { threshold: 0.12 });
-document.querySelectorAll('section, .feature-grid article, .screen-card, .privacy-card').forEach((el) => {
-  el.style.transition = 'opacity .7s ease, transform .7s ease';
-  el.style.opacity = '0'; el.style.transform = 'translateY(18px)'; reveal.observe(el);
-});
-document.addEventListener('scroll', () => {
-  document.querySelectorAll('.visible').forEach((el) => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
-}, { passive: true });
+const items = document.querySelectorAll('.reveal');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (reduceMotion || !('IntersectionObserver' in window)) {
+  items.forEach((item) => item.classList.add('is-visible'));
+} else {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px' });
+
+  items.forEach((item) => observer.observe(item));
+}
