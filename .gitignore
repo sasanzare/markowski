@@ -32,3 +32,6 @@ Icon?
 # Agent scratch space
 scratch/
 .claude/
+
+# Phase and agent evidence artefacts
+.artifacts/

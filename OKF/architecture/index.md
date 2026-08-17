@@ -9,3 +9,4 @@ components involved, and how data flows between them.
 * [ai-assistant](ai-assistant.md) - The AI provider abstraction, streaming responses, and the edit-proposal/diff-review flow.
 * [editing](editing.md) - The formatting panel and editing a block directly in the preview.
 * [document-architecture](document-architecture.md) - The block document model as source of truth, and the staged migration to it.
+* [windows-architecture](windows-architecture.md) - Phase 0 proposal for the Windows Rust/Tauri 2/Leptos/WebView2 boundary and readiness gates.

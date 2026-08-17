@@ -26,3 +26,7 @@ whichever area you're touching.
 * [components/](components/) - Individual services and model types, one concept each.
 * [views/](views/) - SwiftUI views and their responsibilities.
 * [playbooks/](playbooks/) - Step-by-step guides for common changes.
+
+## Windows extension
+
+* [windows architecture proposal](architecture/windows-architecture.md) - Phase 0 boundary and readiness record for the proposed Rust/Tauri 2/Leptos/WebView2 implementation. The detailed audit remains under `docs/windows/phase-00/`.

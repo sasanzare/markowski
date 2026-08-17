@@ -1,5 +1,12 @@
 # Directory Update Log
 
+## 2026-08-17
+* **Verified**: Completed the Windows Phase 0 remediation using the existing ignored Tauri 2 + Leptos smoke project. Crates.io connectivity, Tauri tooling, release WASM/native builds, WebView2 launch, typed `native-rust-bridge-ok` IPC, clean close, and scoped security checks now support all 28 mandatory Phase 0 passes; no production Windows workspace or Phase 1 implementation was added.
+
+## 2026-08-16
+* **Added**: Documented the Windows Phase 0 baseline and proposed Rust/Tauri 2/Leptos/WebView2 architecture as a clearly marked extension of the existing OKF v0.2 bundle. The parity contract, security/testing/support matrices, ADRs, risks, and native-environment blockers are maintained under `docs/windows/phase-00/`; no macOS source or production Windows implementation was added.
+* **Updated**: Recorded the Phase 0 remediation checkpoint: Windows 11 25H2 x64 build identity, MSVC/Windows SDK/WebView2 verification, and the paused disposable Leptos/Tauri smoke scaffold. Native build and launch evidence remain pending.
+
 ## 2026-08-14
 * **Updated**: Reorganized each model's token-policy editor into a clear primary controls row and a dedicated full-width Reset schedule bar. Manual/Daily behavior now has an icon and inline explanation, while Reset now sits beside the schedule and disables when there is no usage to clear.
 * **Updated**: Reframed the Markowski app icon from the supplied master artwork with a subtle scale increase and lower optical placement, reducing the empty lower inset inside the macOS icon mask while preserving the full face and silhouette.
