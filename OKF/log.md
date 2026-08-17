@@ -1,6 +1,7 @@
 # Directory Update Log
 
 ## 2026-08-17
+* **Implemented**: Added the production Windows Phase 1 Rust workspace under `windows/` with `markowski-core`, a minimal Leptos/WASM UI, a thin Tauri 2 shell, typed `get_app_info` IPC, typed error boundaries, local structured logging, least-privilege capabilities, restrictive CSP, Windows CI configuration, security/CI validators, and native WebView2 evidence. Phase 2 was not started and macOS source remained untouched; hosted GitHub Actions and `cargo audit` were not run locally.
 * **Verified**: Completed the Windows Phase 0 remediation using the existing ignored Tauri 2 + Leptos smoke project. Crates.io connectivity, Tauri tooling, release WASM/native builds, WebView2 launch, typed `native-rust-bridge-ok` IPC, clean close, and scoped security checks now support all 28 mandatory Phase 0 passes; no production Windows workspace or Phase 1 implementation was added.
 
 ## 2026-08-16

@@ -29,4 +29,4 @@ whichever area you're touching.
 
 ## Windows extension
 
-* [windows architecture proposal](architecture/windows-architecture.md) - Phase 0 boundary and readiness record for the proposed Rust/Tauri 2/Leptos/WebView2 implementation. The detailed audit remains under `docs/windows/phase-00/`.
+* [windows architecture](architecture/windows-architecture.md) - Implemented Phase 1 Rust/Tauri 2/Leptos/WebView2 foundation, typed IPC, local security baseline, and links to the phase evidence under `docs/windows/phase-01/`.

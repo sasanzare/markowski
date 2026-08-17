@@ -1,0 +1,22 @@
+[package]
+name = "markowski-desktop-ui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Minimal Leptos/WASM UI for the Markowski Windows shell"
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+js-sys = "0.3"
+leptos = { version = "0.7", features = ["csr"] }
+markowski-core = { path = "../../crates/markowski-core" }
+serde.workspace = true
+serde-wasm-bindgen = "0.6"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+
+# Keep the verified Rust 1.87 MSVC host compatible with current Leptos
+# dependency resolution. These are transitive compatibility pins only.
+either_of = "=0.1.6"
+oco_ref = "=0.2.0"
+idna_adapter = "=1.2.0"

@@ -1,0 +1,8 @@
+[toolchain]
+# The stable alias on the verified host was internally inconsistent (its
+# clippy proxy was missing). Pin the current stable release until that host
+# installation is repaired; this is an explicit reproducibility decision.
+channel = "1.97.1"
+profile = "minimal"
+targets = ["x86_64-pc-windows-msvc", "wasm32-unknown-unknown"]
+components = ["rustfmt", "clippy"]

@@ -1,0 +1,72 @@
+:root {
+  color-scheme: light dark;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #f5f1eb;
+  color: #28231f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    background: #1d1a18;
+    color: #f3eee8;
+  }
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+.shell {
+  box-sizing: border-box;
+  display: grid;
+  gap: 1.25rem;
+  min-height: 100vh;
+  place-content: center;
+  padding: 2rem;
+}
+
+.shell h1,
+.shell p {
+  margin: 0;
+}
+
+.shell h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.04em;
+}
+
+.subtitle {
+  color: #8b5c3e;
+  font-size: 1.05rem;
+}
+
+.status-card {
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 0.75rem;
+  min-width: min(28rem, 80vw);
+  padding: 1rem 1.25rem;
+}
+
+.status-card p {
+  line-height: 1.5;
+}
+
+.status-label {
+  font-weight: 650;
+}
+
+.app-info {
+  display: grid;
+  gap: 0.35rem 1rem;
+  grid-template-columns: max-content 1fr;
+  margin: 0.85rem 0 0;
+}
+
+.app-info dt {
+  color: color-mix(in srgb, currentColor 65%, transparent);
+}
+
+.app-info dd {
+  margin: 0;
+}

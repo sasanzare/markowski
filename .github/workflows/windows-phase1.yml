@@ -1,0 +1,79 @@
+name: Markowski Windows Phase 1
+
+on:
+  pull_request:
+    paths:
+      - "windows/**"
+      - ".github/workflows/windows-phase1.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "windows/**"
+      - ".github/workflows/windows-phase1.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  windows-foundation:
+    name: Windows Rust/Tauri foundation
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: windows
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install stable MSVC Rust with WASM tools
+        uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+
+      - name: Cache Cargo and build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            windows/target/
+            windows/apps/desktop-ui/dist/
+          key: windows-cargo-${{ runner.os }}-${{ hashFiles('windows/Cargo.lock') }}
+          restore-keys: |
+            windows-cargo-${{ runner.os }}-
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Check workspace
+        run: cargo check --workspace
+
+      - name: Run clippy with warnings denied
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Run Rust tests
+        run: cargo test --workspace
+
+      - name: Validate capabilities, CSP, and source scan
+        shell: pwsh
+        run: ./scripts/validate-security.ps1
+
+      - name: Validate workflow contract
+        shell: pwsh
+        run: ./scripts/validate-ci.ps1
+
+      - name: Install frontend and native build tools
+        run: |
+          cargo install trunk --locked
+          cargo install tauri-cli --locked
+
+      - name: Build Leptos WASM frontend
+        working-directory: windows/apps/desktop-ui
+        run: trunk build --release
+
+      - name: Build native Tauri executable
+        working-directory: windows/apps/desktop-shell
+        run: cargo tauri build --no-bundle --ci

@@ -1,0 +1,12 @@
+[package]
+name = "markowski-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Platform-neutral Markowski application identity and IPC contracts"
+
+[dependencies]
+serde.workspace = true
+
+[dev-dependencies]
+serde_json = "1"
