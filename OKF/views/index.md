@@ -13,3 +13,7 @@ services and models these views bind to.
 * [formatting-sidebar](formatting-sidebar.md) - The left formatting pane: styles, lists, tables, direction, and Persian text tools.\n* [document-starter](document-starter.md) - What an empty document shows instead of a blank page.\n
 * [rich-text-canvas](rich-text-canvas.md) - The WYSIWYG editing surface on TextKit 2.
 * [document-table-view](document-table-view.md) - Tables as real grid objects inside the canvas.
+
+# Windows
+
+* [windows-workspace-shell](windows-workspace-shell.md) - The Phase 2 Windows desktop shell, workspace layout, theme controls, and local RTL/LTR fixtures.

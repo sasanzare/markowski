@@ -1,7 +1,8 @@
 # Markowski Windows development workspace
 
 This directory is the production Rust/Tauri/Leptos boundary for the Windows
-edition. It is intentionally a small Phase 1 foundation. Document lifecycle,
+edition. Phase 2 provides the bilingual desktop shell, local UI state, themes,
+resizable workspace, and AI sidebar placeholder. Document lifecycle,
 rendering, editing, navigation, persistence, credentials, AI, and packaging
 remain later phases.
 
@@ -63,8 +64,12 @@ Run the static security and capability checks from `windows/`:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-security.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase2.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-ci.ps1
 ```
 
 The dependency-audit path is documented in `SECURITY_CHECKS.md`. The native
-WebDriver route is reserved as a skeleton in `tests/e2e/README.md`; Phase 1
-does not claim product E2E scenarios.
+WebDriver route is reserved as a future automation boundary in
+`tests/e2e/README.md`; Phase 2 native evidence is recorded manually through
+the actual WebView2 release window and documented under
+`docs/windows/phase-02/`.

@@ -1,5 +1,12 @@
 # Directory Update Log
 
+## 2026-08-19
+* **Implemented**: Added the Windows Phase 2 Leptos application shell with typed local mode/theme/fixture state, no-document and document-placeholder views, Preview/Editor/Source placeholders, direct-grid resizable AI pane, Light/Dark/System semantic tokens, local IRANSansX typography assets, and Persian/mixed RTL/LTR fixtures.
+* **Verified**: Rebuilt and launched the native release shell with 125% WebView evidence, side-by-side layout, pane drag and keyboard constraints, theme/mode/sidebar interactions, accessibility labels/focus, maximized layout, restrictive CSP/capabilities, and clean exit. At that point Phase 2 remained partial because 100/150/200% DPI and a distinct medium window run were not yet evidenced.
+
+## 2026-08-20
+* **Verified**: Captured the production release shell in a distinct 1286×794 logical-pixel medium window at live 125% scale. Toolbar, mode switch, AI pane, splitter drag, Persian/mixed fixtures, no-overlap layout, and visible splitter focus were inspected. Native evidence for 100%, 150%, and 200% DPI remains open.
+
 ## 2026-08-17
 * **Implemented**: Added the production Windows Phase 1 Rust workspace under `windows/` with `markowski-core`, a minimal Leptos/WASM UI, a thin Tauri 2 shell, typed `get_app_info` IPC, typed error boundaries, local structured logging, least-privilege capabilities, restrictive CSP, Windows CI configuration, security/CI validators, and native WebView2 evidence. Phase 2 was not started and macOS source remained untouched; hosted GitHub Actions and `cargo audit` were not run locally.
 * **Verified**: Completed the Windows Phase 0 remediation using the existing ignored Tauri 2 + Leptos smoke project. Crates.io connectivity, Tauri tooling, release WASM/native builds, WebView2 launch, typed `native-rust-bridge-ok` IPC, clean close, and scoped security checks now support all 28 mandatory Phase 0 passes; no production Windows workspace or Phase 1 implementation was added.

@@ -3,6 +3,11 @@
 One concept per notable Swift type or service. See
 [architecture/](../architecture/) for how these fit together.
 
+# Windows
+
+* [windows-shell](windows-shell.md) - The Phase 2 Leptos shell, typed native bridge boundary, and local-only interaction contract.
+* [windows-ui-state](windows-ui-state.md) - Typed session-only mode, theme, fixture, sidebar, and pane state.
+
 # Document I/O
 
 * [markview-document](markview-document.md) - `FileDocument` model backing the app's open/save.

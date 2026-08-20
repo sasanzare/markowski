@@ -29,4 +29,7 @@ whichever area you're touching.
 
 ## Windows extension
 
-* [windows architecture](architecture/windows-architecture.md) - Implemented Phase 1 Rust/Tauri 2/Leptos/WebView2 foundation, typed IPC, local security baseline, and links to the phase evidence under `docs/windows/phase-01/`.
+* [windows architecture](architecture/windows-architecture.md) - Phase 1/2 Rust/Tauri 2/Leptos/WebView2 boundary, typed IPC, local UI state, bilingual shell, and security baseline.
+* [windows shell](components/windows-shell.md) - The production Windows AppShell and its no-Phase-3 native boundary.
+* [windows UI state](components/windows-ui-state.md) - Typed mode, theme, fixture, pane, and visibility state.
+* [windows workspace view](views/windows-workspace-shell.md) - The LTR application chrome, local RTL document fixtures, and AI pane.
