@@ -80,6 +80,7 @@ impl fmt::Display for ThemePreference {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum WorkspaceFixture {
     #[default]
@@ -89,6 +90,7 @@ pub enum WorkspaceFixture {
     MixedDirectionDocument,
 }
 
+#[allow(dead_code)]
 impl WorkspaceFixture {
     pub const fn label(self) -> &'static str {
         match self {

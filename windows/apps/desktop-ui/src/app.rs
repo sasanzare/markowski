@@ -2,14 +2,16 @@ use js_sys::Promise;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use markowski_core::{AppInfo, AppInfoRequest, AppInfoResponse, IpcError, PRODUCT_NAME};
+use markowski_document::{DocumentError, DocumentState, DocumentStatus};
+use serde::de::DeserializeOwned;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::MouseEvent;
 
 use crate::state::{
-    clamp_sidebar_width, ResizeStart, ThemePreference, WorkspaceFixture, WorkspaceMode,
-    SIDEBAR_DEFAULT_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH,
+    clamp_sidebar_width, ResizeStart, ThemePreference, WorkspaceMode, SIDEBAR_DEFAULT_WIDTH,
+    SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH,
 };
 
 #[wasm_bindgen]
@@ -29,11 +31,13 @@ enum BridgeState {
 struct UiState {
     mode: RwSignal<WorkspaceMode>,
     theme: RwSignal<ThemePreference>,
-    fixture: RwSignal<WorkspaceFixture>,
     sidebar_visible: RwSignal<bool>,
     sidebar_width: RwSignal<u16>,
     resize_start: RwSignal<Option<ResizeStart>>,
     notice: RwSignal<Option<String>>,
+    document_state: RwSignal<DocumentState>,
+    document_content: RwSignal<String>,
+    edit_ticket: RwSignal<u64>,
 }
 
 #[derive(Serialize)]
@@ -41,8 +45,47 @@ struct GetAppInfoInvokeArgs {
     request: AppInfoRequest,
 }
 
+#[derive(Serialize)]
+struct GetDocumentStateInvokeArgs {
+    known_memory_generation: Option<u64>,
+}
+
+#[derive(Serialize)]
+struct UpdateDocumentContentInvokeArgs {
+    content: String,
+}
+
+#[derive(Serialize)]
+struct DocumentSwitchInvokeArgs {
+    discard_changes: bool,
+}
+
+const CONTENT_UPDATE_DEBOUNCE_MS: i32 = 180;
+const AUTOSAVE_DEBOUNCE_MS: i32 = 700;
+
 fn decode_bridge_error(error: JsValue) -> IpcError {
     serde_wasm_bindgen::from_value(error).unwrap_or_else(|_| IpcError::bridge_unavailable())
+}
+
+fn decode_document_error(error: JsValue) -> DocumentError {
+    serde_wasm_bindgen::from_value(error).unwrap_or(DocumentError::ReadFailed)
+}
+
+async fn invoke_document<R: DeserializeOwned>(
+    command: &str,
+    args: JsValue,
+) -> Result<R, DocumentError> {
+    let promise = invoke(command, args).map_err(decode_document_error)?;
+    let response = JsFuture::from(promise)
+        .await
+        .map_err(decode_document_error)?;
+    serde_wasm_bindgen::from_value(response).map_err(|_| DocumentError::ReadFailed)
+}
+
+async fn invoke_document_without_args<R: DeserializeOwned>(
+    command: &str,
+) -> Result<R, DocumentError> {
+    invoke_document(command, JsValue::NULL).await
 }
 
 async fn request_app_info() -> Result<AppInfo, IpcError> {
@@ -59,6 +102,16 @@ async fn request_app_info() -> Result<AppInfo, IpcError> {
     Ok(response.app)
 }
 
+async fn request_document_state(
+    known_memory_generation: Option<u64>,
+) -> Result<DocumentState, DocumentError> {
+    let args = serde_wasm_bindgen::to_value(&GetDocumentStateInvokeArgs {
+        known_memory_generation,
+    })
+    .map_err(|_| DocumentError::ReadFailed)?;
+    invoke_document("get_document_state", args).await
+}
+
 fn device_scale_label() -> String {
     let ratio = web_sys::window()
         .map(|window| window.device_pixel_ratio())
@@ -66,17 +119,156 @@ fn device_scale_label() -> String {
     format!("{:.0}%", ratio * 100.0)
 }
 
+async fn delay_ms(milliseconds: i32) {
+    let promise = Promise::new(&mut |resolve, _reject| {
+        let callback = Closure::once_into_js(move || {
+            let _ = resolve.call0(&JsValue::UNDEFINED);
+        });
+        if let Some(window) = web_sys::window() {
+            let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
+                callback.unchecked_ref(),
+                milliseconds,
+            );
+        }
+    });
+    let _ = JsFuture::from(promise).await;
+}
+
+fn apply_document_state(ui: UiState, state: DocumentState) {
+    if let Some(content) = state.content.clone() {
+        ui.document_content.set(content);
+    }
+    ui.document_state.set(state);
+}
+
+fn show_document_error(ui: UiState, error: DocumentError) {
+    let message = if error == DocumentError::DialogCancelled {
+        "The document action was cancelled.".to_owned()
+    } else {
+        error.user_message()
+    };
+    ui.notice.set(Some(message));
+}
+
+fn confirm_discard_if_dirty(ui: UiState, action: &str) -> bool {
+    if !ui.document_state.get_untracked().dirty {
+        return true;
+    }
+    web_sys::window()
+        .and_then(|window| {
+            window
+                .confirm_with_message(&format!(
+                    "This document has unsaved changes. {action} and discard them?"
+                ))
+                .ok()
+        })
+        .unwrap_or(false)
+}
+
+fn start_document_switch(ui: UiState, command: &'static str) {
+    let args = match serde_wasm_bindgen::to_value(&DocumentSwitchInvokeArgs {
+        discard_changes: true,
+    }) {
+        Ok(args) => args,
+        Err(_) => {
+            show_document_error(ui, DocumentError::ReadFailed);
+            return;
+        }
+    };
+    spawn_local(async move {
+        match invoke_document::<DocumentState>(command, args).await {
+            Ok(state) => apply_document_state(ui, state),
+            Err(error) => show_document_error(ui, error),
+        }
+    });
+}
+
+fn schedule_content_update(ui: UiState, content: String) {
+    ui.edit_ticket
+        .update(|ticket| *ticket = ticket.saturating_add(1));
+    let ticket = ui.edit_ticket.get_untracked();
+    spawn_local(async move {
+        delay_ms(CONTENT_UPDATE_DEBOUNCE_MS).await;
+        if ui.edit_ticket.get_untracked() != ticket {
+            return;
+        }
+        let args = match serde_wasm_bindgen::to_value(&UpdateDocumentContentInvokeArgs { content })
+        {
+            Ok(args) => args,
+            Err(_) => {
+                show_document_error(ui, DocumentError::ReadFailed);
+                return;
+            }
+        };
+        match invoke_document::<DocumentState>("update_document_content", args).await {
+            Ok(state) => {
+                apply_document_state(ui, state);
+                schedule_document_autosave(ui, ticket);
+            }
+            Err(error) => show_document_error(ui, error),
+        }
+    });
+}
+
+fn schedule_document_autosave(ui: UiState, ticket: u64) {
+    spawn_local(async move {
+        delay_ms(AUTOSAVE_DEBOUNCE_MS).await;
+        if ui.edit_ticket.get_untracked() != ticket {
+            return;
+        }
+
+        let state = ui.document_state.get_untracked();
+        if state.path.is_none()
+            || !state.dirty
+            || matches!(
+                state.status,
+                DocumentStatus::Conflict
+                    | DocumentStatus::Missing
+                    | DocumentStatus::ExternallyRenamed
+                    | DocumentStatus::ExternalChanged
+                    | DocumentStatus::Saving
+            )
+        {
+            return;
+        }
+
+        match invoke_document_without_args::<DocumentState>("save_document").await {
+            Ok(state) => apply_document_state(ui, state),
+            Err(DocumentError::SaveInProgress) => {}
+            Err(error) => show_document_error(ui, error),
+        }
+    });
+}
+
+fn start_document_poll(ui: UiState) {
+    spawn_local(async move {
+        loop {
+            delay_ms(500).await;
+            let known = ui.document_state.get_untracked().memory_generation;
+            match request_document_state(Some(known)).await {
+                Ok(state) => apply_document_state(ui, state),
+                Err(DocumentError::DialogCancelled) => {}
+                Err(DocumentError::ReadFailed) => {}
+                Err(error) => show_document_error(ui, error),
+            }
+        }
+    });
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     let (bridge_state, set_bridge_state) = signal(BridgeState::Loading);
+    let initial_document = DocumentState::untitled();
     let ui = UiState {
         mode: RwSignal::new(WorkspaceMode::default()),
         theme: RwSignal::new(ThemePreference::default()),
-        fixture: RwSignal::new(WorkspaceFixture::default()),
         sidebar_visible: RwSignal::new(true),
         sidebar_width: RwSignal::new(SIDEBAR_DEFAULT_WIDTH),
         resize_start: RwSignal::new(None),
         notice: RwSignal::new(None),
+        document_content: RwSignal::new(initial_document.content.clone().unwrap_or_default()),
+        document_state: RwSignal::new(initial_document),
+        edit_ticket: RwSignal::new(0),
     };
 
     spawn_local(async move {
@@ -85,6 +277,13 @@ pub fn App() -> impl IntoView {
             Err(error) => BridgeState::Failed(error),
         });
     });
+
+    spawn_local(async move {
+        if let Ok(state) = request_document_state(None).await {
+            apply_document_state(ui, state);
+        }
+    });
+    start_document_poll(ui);
 
     let handle_workspace_mousemove = move |event: MouseEvent| {
         if let Some(start) = ui.resize_start.get() {
@@ -138,7 +337,7 @@ fn TopBar(ui: UiState, bridge_state: ReadSignal<BridgeState>) -> impl IntoView {
                 <div class="brand-mark" aria-hidden="true">"M"</div>
                 <div class="brand-copy">
                     <h1 id="app-title">{PRODUCT_NAME}</h1>
-                    <span class="brand-context">"Windows workspace shell"</span>
+                    <span class="brand-context">"Windows document workspace"</span>
                 </div>
             </div>
 
@@ -146,11 +345,12 @@ fn TopBar(ui: UiState, bridge_state: ReadSignal<BridgeState>) -> impl IntoView {
                 <button
                     class="button button-subtle"
                     type="button"
-                    aria-label="New document placeholder"
-                    title="Document creation begins in Phase 3"
-                    on:click=move |_| ui.notice.set(Some(
-                        "New document is a Phase 3 placeholder; no filesystem access is active in Phase 2.".to_owned(),
-                    ))
+                    aria-label="New document"
+                    title="Create a new untitled Markdown document"
+                    on:click=move |_| {
+                        if !confirm_discard_if_dirty(ui, "Create a new document") { return; }
+                        start_document_switch(ui, "new_document");
+                    }
                 >
                     <span class="button-glyph" aria-hidden="true">"+"</span>
                     <span class="button-label">"New"</span>
@@ -158,14 +358,78 @@ fn TopBar(ui: UiState, bridge_state: ReadSignal<BridgeState>) -> impl IntoView {
                 <button
                     class="button button-subtle"
                     type="button"
-                    aria-label="Open document placeholder"
-                    title="Document opening begins in Phase 3"
-                    on:click=move |_| ui.notice.set(Some(
-                        "Open document is a Phase 3 placeholder; this shell does not read files.".to_owned(),
-                    ))
+                    aria-label="Open document"
+                    title="Open an existing .md or .mmd file"
+                    on:click=move |_| {
+                        if !confirm_discard_if_dirty(ui, "Open another document") { return; }
+                        start_document_switch(ui, "open_document");
+                    }
                 >
                     <span class="button-glyph" aria-hidden="true">"↗"</span>
                     <span class="button-label">"Open"</span>
+                </button>
+                <button
+                    class="button button-subtle"
+                    type="button"
+                    aria-label="Save document"
+                    title="Save the current document safely"
+                    on:click=move |_| {
+                        let command = if ui.document_state.get_untracked().path.is_some() { "save_document" } else { "save_document_as" };
+                        spawn_local(async move {
+                            match invoke_document_without_args::<DocumentState>(command).await {
+                                Ok(state) => apply_document_state(ui, state),
+                                Err(error) => show_document_error(ui, error),
+                            }
+                        });
+                    }
+                >
+                    <span class="button-glyph" aria-hidden="true">"↓"</span>
+                    <span class="button-label">"Save"</span>
+                </button>
+                <button
+                    class="button button-subtle"
+                    type="button"
+                    aria-label="Save document as"
+                    title="Choose a new .md or .mmd path"
+                    on:click=move |_| {
+                        spawn_local(async move {
+                            match invoke_document_without_args::<DocumentState>("save_document_as").await {
+                                Ok(state) => apply_document_state(ui, state),
+                                Err(error) => show_document_error(ui, error),
+                            }
+                        });
+                    }
+                >
+                    <span class="button-glyph" aria-hidden="true">"⇥"</span>
+                    <span class="button-label">"Save As"</span>
+                </button>
+                <button
+                    class="button button-subtle"
+                    type="button"
+                    aria-label="Reload document from disk"
+                    title="Reload the current document from disk"
+                    prop:disabled=move || {
+                        let state = ui.document_state.get();
+                        state.path.is_none()
+                            || matches!(
+                                state.status,
+                                DocumentStatus::Untitled
+                                    | DocumentStatus::Missing
+                                    | DocumentStatus::ExternallyRenamed
+                            )
+                    }
+                    on:click=move |_| {
+                        if !confirm_discard_if_dirty(ui, "Reload from disk") { return; }
+                        spawn_local(async move {
+                            match invoke_document_without_args::<DocumentState>("reload_document").await {
+                                Ok(state) => apply_document_state(ui, state),
+                                Err(error) => show_document_error(ui, error),
+                            }
+                        });
+                    }
+                >
+                    <span class="button-glyph" aria-hidden="true">"↻"</span>
+                    <span class="button-label">"Reload"</span>
                 </button>
             </nav>
 
@@ -225,12 +489,15 @@ fn ThemeControl(ui: UiState) -> impl IntoView {
 fn WorkspaceToolbar(ui: UiState) -> impl IntoView {
     view! {
         <div class="workspace-toolbar">
-            <div class="workspace-context" aria-label="Workspace context">
-                <span class="context-eyebrow">"WORKSPACE"</span>
-                <span class="context-title">"Untitled local fixture"</span>
+            <div class="workspace-context" aria-label="Current document">
+                <span class="context-eyebrow">"DOCUMENT"</span>
+                <span class="context-title">{move || ui.document_state.get().file_name}</span>
             </div>
             <ModeSwitcher ui=ui />
-            <FixtureControl ui=ui />
+            <div class="document-toolbar-status" aria-live="polite">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span>{move || ui.document_state.get().status.label()}</span>
+            </div>
         </div>
     }
 }
@@ -238,7 +505,7 @@ fn WorkspaceToolbar(ui: UiState) -> impl IntoView {
 #[component]
 fn ModeSwitcher(ui: UiState) -> impl IntoView {
     view! {
-        <div class="mode-switcher" role="tablist" aria-label="Workspace mode">
+        <div class="mode-switcher" role="tablist" aria-label="Lifecycle text surface mode">
             <ModeTab ui=ui mode=WorkspaceMode::Preview />
             <ModeTab ui=ui mode=WorkspaceMode::Editor />
             <ModeTab ui=ui mode=WorkspaceMode::Source />
@@ -278,26 +545,6 @@ fn ModeTab(ui: UiState, mode: WorkspaceMode) -> impl IntoView {
 }
 
 #[component]
-fn FixtureControl(ui: UiState) -> impl IntoView {
-    view! {
-        <label class="fixture-control">
-            <span class="fixture-label">"Phase 2 fixture"</span>
-            <select
-                aria-label="Phase 2 UI fixture"
-                title="Deterministic UI-only fixture; it never opens a file"
-                prop:value=move || ui.fixture.get().value()
-                on:change=move |event| ui.fixture.set(WorkspaceFixture::from_value(&event_target_value(&event)))
-            >
-                <option value="empty">"No document"</option>
-                <option value="document">"Document placeholder"</option>
-                <option value="persian">"Persian fixture"</option>
-                <option value="mixed">"Mixed RTL/LTR fixture"</option>
-            </select>
-        </label>
-    }
-}
-
-#[component]
 fn WorkspaceSurface(ui: UiState) -> impl IntoView {
     view! {
         <section
@@ -307,171 +554,71 @@ fn WorkspaceSurface(ui: UiState) -> impl IntoView {
             aria-label="Document workspace"
             tabindex="0"
         >
-            {move || match ui.fixture.get() {
-                WorkspaceFixture::Empty => view! { <EmptyState ui=ui /> }.into_any(),
-                fixture => view! {
-                    <div class="document-placeholder">
-                        <DocumentHeader fixture=fixture />
-                        <div
-                            class="document-content"
-                            dir=fixture.content_direction()
-                            lang=if fixture.content_direction() == "rtl" { "fa" } else { "en" }
-                        >
-                            {move || match ui.mode.get() {
-                                WorkspaceMode::Preview => mode_placeholder(ui.fixture.get(), WorkspaceMode::Preview),
-                                WorkspaceMode::Editor => mode_placeholder(ui.fixture.get(), WorkspaceMode::Editor),
-                                WorkspaceMode::Source => mode_placeholder(ui.fixture.get(), WorkspaceMode::Source),
-                            }}
-                        </div>
-                    </div>
-                }.into_any(),
-            }}
+            <div class="document-placeholder">
+                <DocumentHeader ui=ui />
+                <div
+                    class="document-content"
+                    dir=move || if has_persian(&ui.document_content.get()) { "auto" } else { "ltr" }
+                    lang=move || if has_persian(&ui.document_content.get()) { "fa" } else { "en" }
+                >
+                    <LifecycleTextSurface ui=ui />
+                </div>
+            </div>
         </section>
     }
 }
 
 #[component]
-fn DocumentHeader(fixture: WorkspaceFixture) -> impl IntoView {
+fn DocumentHeader(ui: UiState) -> impl IntoView {
     view! {
         <header class="document-header">
             <div>
-                <span class="document-kicker">"PHASE 2 UI FIXTURE · NOT PERSISTED"</span>
-                <h2>{fixture.label()}</h2>
+                <span class="document-kicker">"PHASE 3 · FILESYSTEM-BACKED DOCUMENT"</span>
+                <h2>{move || ui.document_state.get().file_name}</h2>
             </div>
-            <span class="document-status">"Local only"</span>
+            <span class="document-status" aria-live="polite">
+                {move || ui.document_state.get().status.label()}
+            </span>
         </header>
     }
 }
 
+fn has_persian(text: &str) -> bool {
+    text.chars().any(|character| {
+        matches!(character, '\u{0600}'..='\u{06FF}' | '\u{0750}'..='\u{077F}' | '\u{08A0}'..='\u{08FF}')
+    })
+}
+
 #[component]
-fn EmptyState(ui: UiState) -> impl IntoView {
+fn LifecycleTextSurface(ui: UiState) -> impl IntoView {
     view! {
-        <div class="empty-state">
-            <div class="empty-mark" aria-hidden="true">"M"</div>
-            <span class="document-kicker">"MARKOWSKI WINDOWS"</span>
-            <h2>"A calm place for your next document"</h2>
-            <p>
-                "The workspace is ready. Phase 2 only provides the desktop shell; file opening and document editing arrive in Phase 3."
+        <article class="lifecycle-surface">
+            <div class="placeholder-heading">
+                <span class="mode-icon" aria-hidden="true">"✎"</span>
+                <div>
+                    <span class="mode-kicker">"PHASE 3 LIFECYCLE SURFACE"</span>
+                    <h3>{move || format!("{} text · {}", ui.mode.get().label(), ui.mode.get().description())}</h3>
+                </div>
+            </div>
+            <p class="lifecycle-help">
+                "A deliberately plain text surface for document lifecycle validation. The full Source Editor is reserved for Phase 4."
             </p>
-            <div class="empty-actions" aria-label="Document placeholders">
-                <button
-                    class="button button-primary"
-                    type="button"
-                    on:click=move |_| ui.notice.set(Some(
-                        "New document is a Phase 3 placeholder; no filesystem access is active in Phase 2.".to_owned(),
-                    ))
-                >
-                    <span class="button-glyph" aria-hidden="true">"+"</span>
-                    <span>"New document"</span>
-                </button>
-                <button
-                    class="button button-outline"
-                    type="button"
-                    on:click=move |_| ui.notice.set(Some(
-                        "Open document is a Phase 3 placeholder; this workspace stays local and deterministic.".to_owned(),
-                    ))
-                >
-                    <span class="button-glyph" aria-hidden="true">"↗"</span>
-                    <span>"Open document"</span>
-                </button>
+            <textarea
+                class="lifecycle-textarea"
+                aria-label="Markdown document text"
+                spellcheck="false"
+                prop:value=move || ui.document_content.get()
+                on:input=move |event| {
+                    let content = event_target_value(&event);
+                    ui.document_content.set(content.clone());
+                    schedule_content_update(ui, content);
+                }
+            ></textarea>
+            <div class="lifecycle-meta" aria-live="polite">
+                <span>{move || format!("{} · revision {}", ui.document_state.get().status.label(), ui.document_state.get().memory_generation)}</span>
+                <span>{move || format!("{} · {}", ui.document_state.get().encoding.label(), ui.document_state.get().newline_style.label())}</span>
             </div>
-            <p class="empty-note">"No document data is read, written, watched, or persisted in this state."</p>
-        </div>
-    }
-}
-
-fn mode_placeholder(fixture: WorkspaceFixture, mode: WorkspaceMode) -> AnyView {
-    let source = match fixture {
-        WorkspaceFixture::PersianDocument => "سلام، این یک سند فارسی برای آزمایش Markowski است.",
-        WorkspaceFixture::MixedDirectionDocument => {
-            "برای اجرای cargo test از ترمینال استفاده کنید."
-        }
-        WorkspaceFixture::DocumentPlaceholder => {
-            "# Untitled Markdown fixture\n\nPhase 2 keeps document behavior stubbed."
-        }
-        WorkspaceFixture::Empty => "",
-    };
-
-    match mode {
-        WorkspaceMode::Preview => view! {
-            <article class="mode-placeholder preview-placeholder">
-                <div class="placeholder-heading">
-                    <span class="mode-icon" aria-hidden="true">"◈"</span>
-                    <div>
-                        <span class="mode-kicker">"PREVIEW FOUNDATION"</span>
-                        <h3>"Rendered workspace placeholder"</h3>
-                    </div>
-                </div>
-                <p>{mode.description()} " · This panel reserves the future local Markdown renderer surface."</p>
-                <FixtureContent fixture=fixture />
-            </article>
-        }
-        .into_any(),
-        WorkspaceMode::Editor => view! {
-            <article class="mode-placeholder editor-placeholder">
-                <div class="placeholder-heading">
-                    <span class="mode-icon" aria-hidden="true">"✦"</span>
-                    <div>
-                        <span class="mode-kicker">"EDITOR FOUNDATION"</span>
-                        <h3>"Visual editor placeholder"</h3>
-                    </div>
-                </div>
-                <p>{mode.description()} " · The future semantic editor will live here without changing the source authority."</p>
-                <div class="editor-blocks" aria-label="Editor block placeholders">
-                    <div class="editor-block editor-block-heading">"Heading block"</div>
-                    <div class="editor-block">"Paragraph block with stable spacing"</div>
-                    <div class="editor-block editor-block-code">"Code block placeholder"</div>
-                </div>
-                <FixtureContent fixture=fixture />
-            </article>
-        }
-        .into_any(),
-        WorkspaceMode::Source => view! {
-            <article class="mode-placeholder source-placeholder">
-                <div class="placeholder-heading">
-                    <span class="mode-icon" aria-hidden="true">"‹/›"</span>
-                    <div>
-                        <span class="mode-kicker">"SOURCE FOUNDATION"</span>
-                        <h3>"Markdown source placeholder"</h3>
-                    </div>
-                </div>
-                <p>{mode.description()} " · Source remains the future document authority; editing is intentionally not active yet."</p>
-                <pre class="source-code" dir="ltr"><code>{source}</code></pre>
-                <FixtureContent fixture=fixture />
-            </article>
-        }
-        .into_any(),
-    }
-}
-
-#[component]
-fn FixtureContent(fixture: WorkspaceFixture) -> impl IntoView {
-    match fixture {
-        WorkspaceFixture::DocumentPlaceholder => view! {
-            <div class="fixture-copy" dir="ltr">
-                <p>"This is a deterministic document-open placeholder."</p>
-                <p>"It exposes the future workspace without reading a real file."</p>
-                <p class="inline-note"><code dir="ltr">"Phase 3"</code> " owns document lifecycle."</p>
-            </div>
-        }
-        .into_any(),
-        WorkspaceFixture::PersianDocument => view! {
-            <div class="fixture-copy" dir="rtl" lang="fa">
-                <p>"سلام، این یک سند فارسی برای آزمایش Markowski است."</p>
-                <p>"نسخه " <bdi dir="ltr">"0.1.0"</bdi> " روی " <bdi dir="ltr">"Windows"</bdi> " اجرا می‌شود."</p>
-                <p class="inline-note">"متن سند جهت محلی دارد و پوسته‌ی برنامه همچنان چپ‌به‌راست است."</p>
-            </div>
-        }
-        .into_any(),
-        WorkspaceFixture::MixedDirectionDocument => view! {
-            <div class="fixture-copy" dir="rtl" lang="fa">
-                <p>"برای اجرای " <code dir="ltr">"cargo test"</code> " از ترمینال استفاده کنید."</p>
-                <p>"نسخه " <bdi dir="ltr">"0.1.0"</bdi> " روی " <bdi dir="ltr">"Windows"</bdi> " اجرا می‌شود."</p>
-                <p class="inline-note">"کد، اعداد و برچسب‌های انگلیسی با bidi isolation خوانا می‌مانند."</p>
-            </div>
-        }
-        .into_any(),
-        WorkspaceFixture::Empty => view! { <div></div> }.into_any(),
+        </article>
     }
 }
 
@@ -544,7 +691,7 @@ fn AiSidebar(ui: UiState) -> impl IntoView {
             <div class="assistant-content">
                 <div class="assistant-orb" aria-hidden="true">"✦"</div>
                 <h3>"A thoughtful second pane"</h3>
-                <p>"AI Assistant becomes available in a later phase."</p>
+                <p>"AI Assistant remains a later phase; document lifecycle safety is active here."</p>
                 <div class="assistant-boundary">
                     <span class="status-dot" aria-hidden="true"></span>
                     <span>"No chat, provider, network, or secret access is active."</span>
@@ -571,7 +718,7 @@ fn StatusArea(
                 <span>
                     {move || match bridge_state.get() {
                         BridgeState::Loading => "Connecting to the native shell…".to_owned(),
-                        BridgeState::Ready(_) => "Native bridge connected · local UI state only".to_owned(),
+                        BridgeState::Ready(_) => format!("Document lifecycle active · {}", ui.document_state.get().status.label()),
                         BridgeState::Failed(error) => error.message,
                     }}
                 </span>
@@ -581,9 +728,14 @@ fn StatusArea(
                     {move || ui.notice.get().unwrap_or_default()}
                 </div>
             </Show>
-            <div class="status-metrics" aria-label="Workspace metrics">
-                <span>{move || format!("{} · {} mode", if ui.fixture.get().has_document() { "Document" } else { "Empty" }, ui.mode.get())}</span>
-                <span>{move || format!("{} · {} px", if ui.sidebar_visible.get() { "AI on" } else { "AI off" }, ui.sidebar_width.get())}</span>
+            <Show when=move || ui.document_state.get().message.is_some()>
+                <div class="status-notice" role="alert">
+                    {move || ui.document_state.get().message.unwrap_or_default()}
+                </div>
+            </Show>
+            <div class="status-metrics" aria-label="Document metrics">
+                <span>{move || format!("{} · {}", ui.document_state.get().file_name, ui.document_state.get().status.label())}</span>
+                <span>{move || if ui.document_state.get().dirty { "Unsaved" } else { "Clean" }}</span>
                 <span>{format!("WebView scale {}", scale_label)}</span>
             </div>
         </footer>

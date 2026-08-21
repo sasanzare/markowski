@@ -1,0 +1,11 @@
+[package]
+name = "markowski-platform-windows"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Windows filesystem and debounced watcher boundary for Markowski"
+
+[dependencies]
+markowski-document = { path = "../markowski-document" }
+notify.workspace = true
+windows-sys.workspace = true

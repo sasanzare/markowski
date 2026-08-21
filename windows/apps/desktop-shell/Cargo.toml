@@ -14,7 +14,12 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 markowski-core = { path = "../../crates/markowski-core" }
+markowski-document = { path = "../../crates/markowski-document" }
+markowski-platform-windows = { path = "../../crates/markowski-platform-windows" }
 tauri = { version = "2", features = [] }
+tokio = { version = "1", features = ["rt", "sync"] }
+serde.workspace = true
+windows-sys.workspace = true
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 

@@ -3,9 +3,11 @@ $ErrorActionPreference = "Stop"
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
 $configPath = Join-Path $workspaceRoot "apps\desktop-shell\tauri.conf.json"
 $capabilityPath = Join-Path $workspaceRoot "apps\desktop-shell\capabilities\default.json"
+$shellSourcePath = Join-Path $workspaceRoot "apps\desktop-shell\src\lib.rs"
 
 $config = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
 $capability = Get-Content -LiteralPath $capabilityPath -Raw | ConvertFrom-Json
+$shellSource = Get-Content -LiteralPath $shellSourcePath -Raw
 $csp = [string]$config.app.security.csp
 
 if ([string]::IsNullOrWhiteSpace($csp)) {
@@ -64,4 +66,19 @@ if ($scanExitCode -gt 1) {
     throw "Secret scan failed with exit code $scanExitCode."
 }
 
-Write-Output "Phase 1 security validation: PASS"
+foreach ($fragment in @(
+    "pick_open_document",
+    "pick_save_document",
+    "DocumentSwitchRequest",
+    "get_document_state"
+)) {
+    if (-not $shellSource.Contains($fragment)) {
+        throw "Typed Windows document boundary is missing required fragment: $fragment"
+    }
+}
+
+if ($shellSource -match "fs::read|std::fs::write|create_dir_all") {
+    throw "The Tauri shell must not grow an unreviewed direct filesystem implementation."
+}
+
+Write-Output "Windows Phase 3 security validation: PASS"

@@ -63,21 +63,10 @@ foreach ($font in @(
     }
 }
 
-$forbiddenPhase3Terms = @(
-    "open_document",
-    "save_document",
-    "FileWatcher",
-    "CredentialManager",
-    "DocumentSession"
-)
-foreach ($term in $forbiddenPhase3Terms) {
-    $matches = & rg --no-heading --hidden --glob '!target/**' --glob '!dist/**' --glob '*.rs' -e $term -- (Join-Path $workspaceRoot "apps") (Join-Path $workspaceRoot "crates") 2>$null
-    if ($LASTEXITCODE -eq 0 -and $matches) {
-        throw "Phase 3 implementation term found in production Windows source: $term"
-    }
-    if ($LASTEXITCODE -gt 1) {
-        throw "Static Phase 3 scan failed for term $term with exit code $LASTEXITCODE."
-    }
+# Phase 3 is now authorized. This validator remains a regression check for
+# Phase 2 shell/CSP/layout invariants and must not reject lifecycle code.
+if ($appSource -notmatch 'new_document|open_document|save_document') {
+    throw "The Phase 3 lifecycle commands are not reachable from the UI shell."
 }
 
-Write-Output "Phase 2 security and static validation: PASS"
+Write-Output "Phase 2 regression validation: PASS"

@@ -2,9 +2,11 @@
 
 This directory is the production Rust/Tauri/Leptos boundary for the Windows
 edition. Phase 2 provides the bilingual desktop shell, local UI state, themes,
-resizable workspace, and AI sidebar placeholder. Document lifecycle,
-rendering, editing, navigation, persistence, credentials, AI, and packaging
-remain later phases.
+resizable workspace, and AI sidebar placeholder. Phase 3 adds filesystem-backed
+`.md`/`.mmd` document lifecycle, revision-safe atomic saves, external-change
+reconciliation, typed dialogs/IPC, and a deliberately plain lifecycle text
+surface. Source editing, rendering, Mermaid preview, AI, and durable
+persistence remain later phases.
 
 ## Toolchain
 
@@ -40,6 +42,11 @@ cargo fmt --check
 cargo check --workspace
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
+
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-security.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase2.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase3.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-ci.ps1
 ```
 
 Build the frontend directly from `windows/apps/desktop-ui/`:
@@ -65,11 +72,12 @@ Run the static security and capability checks from `windows/`:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-security.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase2.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-phase3.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-ci.ps1
 ```
 
 The dependency-audit path is documented in `SECURITY_CHECKS.md`. The native
 WebDriver route is reserved as a future automation boundary in
-`tests/e2e/README.md`; Phase 2 native evidence is recorded manually through
-the actual WebView2 release window and documented under
-`docs/windows/phase-02/`.
+`tests/e2e/README.md`; Phase 2 and Phase 3 native evidence is recorded manually
+through the actual WebView2 release window and documented under
+`docs/windows/phase-02/` and `docs/windows/phase-03/`.

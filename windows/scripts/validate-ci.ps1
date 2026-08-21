@@ -12,6 +12,8 @@ $requiredFragments = @(
     "cargo clippy --workspace --all-targets --all-features -- -D warnings",
     "cargo test --workspace",
     "./scripts/validate-security.ps1",
+    "./scripts/validate-phase2.ps1",
+    "./scripts/validate-phase3.ps1",
     "trunk build --release",
     "cargo tauri build --no-bundle --ci",
     "wasm32-unknown-unknown",
@@ -20,7 +22,7 @@ $requiredFragments = @(
 
 foreach ($fragment in $requiredFragments) {
     if (-not $workflow.Contains($fragment)) {
-        throw "Windows Phase 1 workflow is missing required fragment: $fragment"
+        throw "Windows Phase 3 workflow is missing required fragment: $fragment"
     }
 }
 
@@ -32,4 +34,4 @@ if ($workflow -match "secrets\.") {
     throw "Windows Phase 1 workflow must not require secrets."
 }
 
-Write-Output "Phase 1 CI contract validation: PASS"
+Write-Output "Windows Phase 3 CI contract validation: PASS"

@@ -968,3 +968,61 @@ select,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Phase 3 deliberately keeps the editing surface plain and replaceable. */
+.document-toolbar-status {
+  display: inline-flex;
+  align-items: center;
+  justify-self: end;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lifecycle-surface {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: clamp(18px, 3vw, 28px);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+.lifecycle-help {
+  margin-block: 16px 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.lifecycle-textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: min(52vh, 520px);
+  resize: vertical;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--text-primary);
+  background: var(--surface);
+  font: 14px/1.75 "Cascadia Code", "Consolas", "IRANSansXFaNum", monospace;
+  tab-size: 4;
+  white-space: pre-wrap;
+  unicode-bidi: plaintext;
+}
+
+.lifecycle-textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--focus-ring) 35%, transparent);
+  outline-offset: 2px;
+  border-color: var(--focus-ring);
+}
+
+.lifecycle-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-block-start: 12px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
