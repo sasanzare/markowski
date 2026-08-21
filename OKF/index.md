@@ -29,7 +29,10 @@ whichever area you're touching.
 
 ## Windows extension
 
-* [windows architecture](architecture/windows-architecture.md) - Phase 1/2 Rust/Tauri 2/Leptos/WebView2 boundary, typed IPC, local UI state, bilingual shell, and security baseline.
-* [windows shell](components/windows-shell.md) - The production Windows AppShell and its no-Phase-3 native boundary.
+* [windows architecture](architecture/windows-architecture.md) - Windows Rust/Tauri 2/Leptos/WebView2 boundary, typed IPC, local UI state, document lifecycle, and security baseline.
+* [windows document lifecycle](architecture/windows-document-lifecycle.md) - Phase 3 state machine, revision-safe persistence, watcher reconciliation, and concurrency invariants.
+* [windows shell](components/windows-shell.md) - The production Windows AppShell, typed lifecycle bridge, and close/switch safety boundary.
 * [windows UI state](components/windows-ui-state.md) - Typed mode, theme, fixture, pane, and visibility state.
+* [windows document domain](components/windows-document-lifecycle.md) - Platform-neutral Windows document state and save coordination.
+* [windows platform filesystem](components/windows-platform-filesystem.md) - Windows atomic writes, native dialogs, and debounced watcher adapter.
 * [windows workspace view](views/windows-workspace-shell.md) - The LTR application chrome, local RTL document fixtures, and AI pane.

@@ -5,8 +5,10 @@ One concept per notable Swift type or service. See
 
 # Windows
 
-* [windows-shell](windows-shell.md) - The Phase 2 Leptos shell, typed native bridge boundary, and local-only interaction contract.
+* [windows-shell](windows-shell.md) - The Windows Leptos shell, typed lifecycle bridge, and local-only interaction contract.
 * [windows-ui-state](windows-ui-state.md) - Typed session-only mode, theme, fixture, sidebar, and pane state.
+* [windows-document-lifecycle](windows-document-lifecycle.md) - Platform-neutral document state, hashes, encoding policy, and save coordination.
+* [windows-platform-filesystem](windows-platform-filesystem.md) - Windows stable reads, atomic replacement, native dialogs, and watcher adapter.
 
 # Document I/O
 

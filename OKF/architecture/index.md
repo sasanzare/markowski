@@ -10,3 +10,4 @@ components involved, and how data flows between them.
 * [editing](editing.md) - The formatting panel and editing a block directly in the preview.
 * [document-architecture](document-architecture.md) - The block document model as source of truth, and the staged migration to it.
 * [windows-architecture](windows-architecture.md) - Phase 1/2 Windows Rust/Tauri 2/Leptos/WebView2 boundary, typed local UI state, shell layout, and security baseline.
+* [windows-document-lifecycle](windows-document-lifecycle.md) - Phase 3 document state machine, revision-safe writes, external-change reconciliation, and watcher boundary.

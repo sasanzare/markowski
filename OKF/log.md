@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-08-21
+* **Implemented**: Added the Windows Phase 3 document domain and filesystem adapter with typed Markdown/Mermaid path validation, UTF-8/BOM and newline policy, revision-bound SHA-256 save attempts, atomic same-directory replacement, debounced watcher reconciliation, conflict/delete/rename states, typed Tauri lifecycle commands, dirty switch/close protection, and persisted-path debounced autosave. The Phase 3 UI remains a deliberately plain textarea; no Phase 4 editor, Phase 5 preview, or Phase 8 persistence was added.
+* **Verified**: Added a real temporary-file T1–T20 lifecycle matrix and watcher/own-save regressions. Workspace tests, direct release WASM/shell compilation, strict Clippy, capability/security checks, Phase 2 regression, Phase 3 scope, and CI-contract validation pass. Trunk/Tauri release packaging is blocked by nested `cargo metadata` access denial in the local environment; native manual evidence and final readiness remain open.
+
 ## 2026-08-19
 * **Implemented**: Added the Windows Phase 2 Leptos application shell with typed local mode/theme/fixture state, no-document and document-placeholder views, Preview/Editor/Source placeholders, direct-grid resizable AI pane, Light/Dark/System semantic tokens, local IRANSansX typography assets, and Persian/mixed RTL/LTR fixtures.
 * **Verified**: Rebuilt and launched the native release shell with 125% WebView evidence, side-by-side layout, pane drag and keyboard constraints, theme/mode/sidebar interactions, accessibility labels/focus, maximized layout, restrictive CSP/capabilities, and clean exit. At that point Phase 2 remained partial because 100/150/200% DPI and a distinct medium window run were not yet evidenced.
